@@ -1,0 +1,8 @@
+[
+  { "id": "topic_llm", "name": "大模型与推理", "keywords": ["llm", "gpt", "claude", "gemini", "llama", "reasoning", "inference", "transformer"] },
+  { "id": "topic_agent", "name": "Agent 与工具使用", "keywords": ["agent", "tool use", "function calling", "mcp", "workflow", "orchestration"] },
+  { "id": "topic_infra", "name": "AI 基础设施", "keywords": ["vllm", "sglang", "tensorrt", "triton", "inference server", "gpu", "kv cache", "speculative"] },
+  { "id": "topic_eval", "name": "评测与对齐", "keywords": ["benchmark", "eval", "alignment", "rlhf", "safety", "red team", "hallucination"] },
+  { "id": "topic_multimodal", "name": "多模态", "keywords": ["vision", "vlm", "diffusion", "video generation", "speech", "embedding", "clip"] },
+  { "id": "topic_devtool", "name": "AI 编程工具", "keywords": ["copilot", "cursor", "code assistant", "ide", "devtool", "agent coding"] }
+]

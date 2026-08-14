@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tech Radar · V1.0 原型</title>
+<style>
+:root{
+  --bg:#0a0f1a; --panel:#101827; --panel2:#0d1422; --border:#1e2a3d; --border2:#2a3a55;
+  --text:#e6edf7; --muted:#8fa1b8; --dim:#5c6b82;
+  --accent:#4f8cff; --must:#f5a524; --worth:#38bdf8; --ok:#2dd4a7; --err:#f4657a;
+  --chip:#182338; --chip-border:#24344f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  font-size:14px; line-height:1.55;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- layout ---------- */
+#sidebar{
+  position:fixed; top:0; left:0; bottom:0; width:216px;
+  background:var(--panel2); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; padding:18px 12px;
+}
+.logo{display:flex;align-items:center;gap:9px;padding:2px 8px 16px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.logo .dot{width:30px;height:30px;border-radius:8px;background:radial-gradient(circle at 30% 30%,#6ea8ff,#2b5fd9);display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo b{font-size:15px;letter-spacing:.3px}
+.logo small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  color:var(--muted);font-size:13.5px;margin-bottom:2px;cursor:pointer;border:1px solid transparent;
+}
+.nav-item:hover{background:var(--chip);color:var(--text)}
+.nav-item.active{background:var(--chip);color:var(--text);border-color:var(--chip-border)}
+.nav-item .ico{width:18px;text-align:center;font-size:14px}
+.nav-item .tag{margin-left:auto;font-size:10px;color:var(--dim);border:1px solid var(--border);padding:0 5px;border-radius:4px}
+#sidebar .foot{margin-top:auto;color:var(--dim);font-size:11px;padding:10px 8px 0;border-top:1px solid var(--border)}
+#main{margin-left:216px;min-height:100vh;padding:22px 28px 60px}
+#topbar{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+#topbar h1{font-size:19px;font-weight:650}
+#topbar .sub{color:var(--muted);font-size:12.5px}
+.proto-badge{margin-left:auto;font-size:11px;color:var(--must);border:1px solid #4a3a15;background:#20180a;padding:3px 9px;border-radius:20px}
+
+/* ---------- summary strip ---------- */
+.strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.strip .cell{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.strip .num{font-size:20px;font-weight:700}
+.strip .lbl{color:var(--muted);font-size:11.5px;margin-top:1px}
+.strip .num.warn{color:var(--must)} .strip .num.err{color:var(--err)} .strip .num.ok{color:var(--ok)}
+
+/* ---------- sections & cards ---------- */
+.sec-head{display:flex;align-items:center;gap:10px;margin:20px 0 10px}
+.sec-head h2{font-size:14.5px;font-weight:650}
+.sec-head .cnt{font-size:11px;color:var(--muted);background:var(--chip);border:1px solid var(--chip-border);padding:1px 8px;border-radius:12px}
+.sec-head .hint{font-size:11.5px;color:var(--dim);margin-left:auto}
+.ev-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;margin-bottom:10px;position:relative;
+}
+.ev-card.must{border-left:3px solid var(--must)}
+.ev-card.worth{border-left:3px solid var(--worth)}
+.ev-card.faded{opacity:.45}
+.ev-head{display:flex;align-items:flex-start;gap:10px}
+.ev-title{font-size:14.5px;font-weight:600;cursor:pointer}
+.ev-title:hover{color:var(--accent)}
+.score-badge{
+  margin-left:auto;flex-shrink:0;min-width:44px;text-align:center;
+  font-weight:700;font-size:15px;border-radius:8px;padding:4px 8px;
+}
+.score-badge.must{background:#241a08;color:var(--must);border:1px solid #4a3a15}
+.score-badge.worth{background:#0a1c26;color:var(--worth);border:1px solid #1c3a4d}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);
+  background:var(--chip);border:1px solid var(--chip-border);border-radius:5px;padding:1.5px 7px;margin:2px 4px 2px 0;
+}
+.chip.type{color:#b8c6e0}
+.chip.gold{color:var(--must);border-color:#4a3a15;background:#20180a}
+.chip.blue{color:var(--worth);border-color:#1c3a4d;background:#0a1c26}
+.chip.green{color:var(--ok);border-color:#14432f;background:#08201a}
+.chip.red{color:var(--err);border-color:#4d1c28;background:#200a10}
+.ev-meta{margin-top:5px}
+.ev-why{margin-top:9px;font-size:13px;color:#c3d0e4;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:9px 12px}
+.ev-why b{color:var(--must);font-weight:600}
+.ev-foot{display:flex;align-items:center;gap:8px;margin-top:11px;flex-wrap:wrap}
+.btn{
+  font-size:12px;color:var(--muted);background:var(--panel2);border:1px solid var(--border2);
+  border-radius:7px;padding:4.5px 11px;cursor:pointer;font-family:inherit;
+}
+.btn:hover{color:var(--text);border-color:var(--accent)}
+.btn.on{color:var(--accent);border-color:var(--accent);background:#101c33}
+.btn.save-on{color:var(--must);border-color:var(--must);background:#241a08}
+.btn.danger:hover{color:var(--err);border-color:var(--err)}
+.reason-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.reason-row .lbl{font-size:12px;color:var(--muted)}
+.reason-pick{font-size:12px;background:var(--chip);border:1px solid var(--chip-border);color:var(--text);border-radius:14px;padding:3px 11px;cursor:pointer}
+.reason-pick:hover{border-color:var(--err);color:var(--err)}
+.scoreline{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px}
+.scoreline .dim{width:86px;color:var(--muted);flex-shrink:0}
+.scoreline .bar{flex:1;height:6px;background:#16233a;border-radius:3px;overflow:hidden}
+.scoreline .fill{height:100%;background:linear-gradient(90deg,#2b5fd9,#6ea8ff);border-radius:3px}
+.scoreline .val{width:28px;text-align:right;color:var(--text);font-weight:600}
+details.reasons{margin-top:8px}
+details.reasons summary{font-size:12px;color:var(--accent);cursor:pointer;user-select:none}
+.reason-codes{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+.rc{font-family:Consolas,monospace;font-size:11px;background:#0a1c26;border:1px solid #1c3a4d;color:#7cc4e8;border-radius:5px;padding:2px 7px}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+th{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;text-align:left;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#121c2e}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+.status .dot{width:7px;height:7px;border-radius:50%}
+.status.ok .dot{background:var(--ok)} .status.ok{color:var(--ok)}
+.status.warn .dot{background:var(--must)} .status.warn{color:var(--must)}
+.status.err .dot{background:var(--err)} .status.err{color:var(--err)}
+.status.dim .dot{background:var(--dim)} .status.dim{color:var(--muted)}
+
+/* ---------- detail page ---------- */
+.back{font-size:12.5px;color:var(--muted);cursor:pointer;margin-bottom:12px;display:inline-block}
+.back:hover{color:var(--accent)}
+.detail-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+.panelbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}
+.panelbox h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:11px}
+.card-field{margin-bottom:13px}
+.card-field .k{font-size:11.5px;color:var(--must);font-weight:600;margin-bottom:3px}
+.card-field .k.b{color:var(--worth)}
+.card-field .v{font-size:13.5px;color:#d5deed}
+.facts li{margin:5px 0 5px 18px;font-size:13px;color:#c3d0e4}
+.evd{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:8px;background:var(--panel2)}
+.evd .kind{font-size:11px;color:var(--worth);border:1px solid #1c3a4d;background:#0a1c26;border-radius:5px;padding:1px 7px;flex-shrink:0;margin-top:1px}
+.evd .u{font-size:12.5px}
+.evd .m{font-size:11px;color:var(--dim);margin-top:2px}
+.rel{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:12.5px}
+.rel:last-child{border-bottom:none}
+.rel .d{color:var(--dim);flex-shrink:0}
+
+/* ---------- misc ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{font-size:13px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--muted);cursor:pointer}
+.tab.active{color:var(--text);border-color:var(--accent);background:#101c33}
+.weightbar{width:120px;height:7px;background:#16233a;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
+.weightbar .fill{height:100%;background:linear-gradient(90deg,#7c3aed,#4f8cff)}
+.toast-wrap{position:fixed;right:22px;bottom:22px;display:flex;flex-direction:column;gap:8px;z-index:99;max-width:420px}
+.toast{
+  background:#101c33;border:1px solid var(--accent);color:var(--text);
+  border-radius:9px;padding:10px 15px;font-size:12.5px;box-shadow:0 6px 24px rgba(0,0,0,.5);
+  animation:slidein .18s ease-out;
+}
+.toast.warn{border-color:var(--must)} .toast.err{border-color:var(--err)}
+.toast code{font-family:Consolas,monospace;font-size:11px;color:#7cc4e8;background:#0a1c26;padding:1px 5px;border-radius:4px}
+@keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+.brief-block{background:var(--panel2);border:1px dashed var(--border2);border-radius:10px;padding:14px 18px;font-size:13px;color:#c3d0e4}
+.brief-block h4{font-size:12px;color:var(--must);margin:9px 0 4px}
+.brief-block h4:first-child{margin-top:0}
+.budgetbar{height:9px;background:#16233a;border-radius:5px;overflow:hidden;margin:7px 0}
+.budgetbar .fill{height:100%;background:linear-gradient(90deg,var(--ok),var(--must))}
+.form-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}
+.form-row:last-child{border-bottom:none}
+.form-row .k{width:190px;color:var(--muted);font-size:13px;flex-shrink:0}
+input[type=text],select{
+  background:var(--panel2);border:1px solid var(--border2);color:var(--text);
+  border-radius:7px;padding:6px 10px;font-size:13px;font-family:inherit;
+}
+.spark{display:inline-flex;align-items:flex-end;gap:2px;height:22px}
+.spark i{width:5px;background:#2b5fd9;border-radius:1.5px;display:block}
+.trend-up{color:var(--ok);font-weight:700}.trend-flat{color:var(--muted);font-weight:700}
+.mini{font-size:11.5px;color:var(--dim)}
+.empty-hint{color:var(--dim);font-size:12.5px;padding:14px;text-align:center;border:1px dashed var(--border);border-radius:10px}
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="logo">
+    <div class="dot">📡</div>
+    <div><b>AI Tech Radar</b><small>个人技术情报 Agent</small></div>
+  </div>
+  <div class="nav-item" data-nav="today"><span class="ico">☀</span>Today</div>
+  <div class="nav-item" data-nav="watchlist"><span class="ico">👁</span>Watchlist</div>
+  <div class="nav-item" data-nav="radar"><span class="ico">📈</span>Radar<span class="tag">P1</span></div>
+  <div class="nav-item" data-nav="memory"><span class="ico">🧠</span>Memory</div>
+  <div class="nav-item" data-nav="sources"><span class="ico">⚙</span>Source Health</div>
+  <div class="nav-item" data-nav="jobs"><span class="ico">▤</span>Jobs &amp; 成本</div>
+  <div class="nav-item" data-nav="settings"><span class="ico">⚑</span>Settings</div>
+  <div class="foot">V1.0 原型 · Mock 数据<br>Watch → Rank → Explain → Learn</div>
+</nav>
+
+<main id="main">
+  <div id="topbar"></div>
+  <div id="view"></div>
+</main>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+/* =============================================================
+ * AI Tech Radar V1.0 可交互原型 —— 全部为 Mock 数据
+ * ============================================================= */
+
+const TODAY = '2026-08-07';
+
+const TOPICS = [
+  {id:'ai-coding',      name:'AI Coding',     weight:0.90, base:0.90, priority:'high',   trend:'flat', d7:12, d7prev:11, d30:41},
+  {id:'agent-memory',   name:'Agent Memory',  weight:0.85, base:0.80, priority:'high',   trend:'up',   d7:8,  d7prev:4,  d30:24},
+  {id:'mcp',            name:'MCP',           weight:0.75, base:0.75, priority:'high',   trend:'flat', d7:6,  d7prev:6,  d30:19},
+  {id:'computer-use',   name:'Computer Use',  weight:0.70, base:0.70, priority:'normal', trend:'up',   d7:4,  d7prev:2,  d30:13},
+  {id:'ai-agent',       name:'AI Agent',      weight:0.65, base:0.65, priority:'normal', trend:'flat', d7:9,  d7prev:9,  d30:33},
+  {id:'agent-security', name:'Agent Security',weight:0.60, base:0.60, priority:'normal', trend:'up',   d7:5,  d7prev:3,  d30:14},
+];
+
+const EVENTS = [
+  {
+    id:'ev-001', tier:'must', total:92,
+    title:'Claude Code v3.0 发布：原生内置 Agent Memory 与多会话上下文',
+    entity:'Claude Code', org:'Anthropic', type:'Release', typeCls:'gold',
+    topics:['ai-coding','agent-memory'],
+    occurred:'2026-08-06 18:20 UTC（本地 08-07 02:20）', captured:'2026-08-07 07:01',
+    dims:{Relevance:95, Impact:88, Novelty:82, Credibility:90, Urgency:85},
+    reasons:['research_active:agent-memory','watchlist_entity:claude-code','topic_weight:ai-coding=0.90','evidence_count:3'],
+    facts:[
+      '版本 v2.4.1 → v3.0.0（主版本跳变，含 breaking change）',
+      '新增本地长期记忆存储（SQLite），跨会话自动注入相关上下文',
+      '新增 Memory 审计 API：可查看 / 编辑 / 删除任一记忆条目',
+      'Hooks API 转正；废弃 --legacy-context 参数',
+    ],
+    evidence:[
+      {kind:'一手 · GitHub Release', url:'github.com/anthropics/claude-code/releases/tag/v3.0.0', captured:'07:01', conf:0.97},
+      {kind:'一手 · Docs Changelog', url:'docs.anthropic.com/claude-code/changelog', captured:'07:02', conf:0.95},
+      {kind:'一手 · 官方博客', url:'anthropic.com/news/claude-code-3', captured:'07:03', conf:0.90},
+    ],
+    card:{
+      what:'Anthropic 发布 Claude Code v3.0，将 Agent Memory 从 Beta 插件转为内置能力，提供本地记忆存储与审计 API。',
+      why:'命中你正在进行的研究「Agent 长期记忆方案对比」（剩 12 天），且 Claude Code 在你的 Watchlist 中；AI Coding 主题权重 0.90。',
+      diff:'相比 v2.4 的 Memory Beta：存储从云端可选改为默认本地 SQLite；新增审计 API（此前无法删除单条记忆）；上下文注入从全量改为按相关性检索。',
+      take:'记忆检索采用嵌入相似度 + 时间衰减的混合策略，官方未公布细节；本地存储意味着多设备同步需自行处理。成熟度：可日用，API 仍标注 experimental。',
+      action:'Clone & Test（约 15 分钟）',
+      confidence:0.93,
+    },
+    related:[
+      {t:'Claude Code v2.4 Memory Beta 开放', d:'2026-06-12', note:'本次转正为内置功能'},
+      {t:'调研记录：mem0 / Zep / 原生方案对比', d:'2026-07-22', note:'研究线程关联 · 当时结论待 v3.0 验证'},
+    ],
+  },
+  {
+    id:'ev-002', tier:'must', total:87,
+    title:'MCP 规范 2026-08 草案：异步工具调用与 OAuth 授权框架',
+    entity:'Model Context Protocol', org:'mcp-spec', type:'Spec 变更', typeCls:'blue',
+    topics:['mcp','agent-security'],
+    occurred:'2026-08-06 14:05 UTC', captured:'2026-08-07 07:01',
+    dims:{Relevance:90, Impact:85, Novelty:78, Credibility:92, Urgency:80},
+    reasons:['watchlist_entity:mcp-specification','topic_weight:mcp=0.75','feedback_up:mcp-protocol(3×useful)'],
+    facts:[
+      '新增 async tool invocation：长任务可返回 progress token',
+      '授权框架从 Bearer-only 扩展为 OAuth 2.1 + 细粒度 scope',
+      '工具描述新增 security considerations 字段（回应注入攻击研究）',
+    ],
+    evidence:[
+      {kind:'一手 · Spec PR', url:'github.com/modelcontextprotocol/specification/pull/412', captured:'07:01', conf:0.96},
+      {kind:'一手 · 规范文档', url:'modelcontextprotocol.io/spec/2026-08-draft', captured:'07:02', conf:0.92},
+    ],
+    card:{
+      what:'MCP 发布 2026-08 草案，引入异步工具调用与 OAuth 2.1 授权框架，并强化工具描述的安全字段。',
+      why:'MCP 是你权重 0.75 的高优先主题，且你近 3 次对 MCP 相关事件都标记了有用（feedback_up）；安全字段变更关联 Agent Security。',
+      diff:'此前版本工具调用为同步阻塞，授权只有静态 Bearer token；本草案解决了长任务超时与凭据粒度两个高频痛点。',
+      take:'OAuth 框架与现有 server 生态需要适配期；async 调用要求 client 侧实现 progress 轮询。草案阶段仍可能变化。',
+      action:'15 min 阅读草案 + Watch 正式发布时间',
+      confidence:0.91,
+    },
+    related:[
+      {t:'MCP 2026-03 版：elicitation 与采样', d:'2026-03-18', note:'上一版规范'},
+    ],
+  },
+  {
+    id:'ev-003', tier:'must', total:84,
+    title:'Anthropic 开源 Computer Use 沙箱参考实现（Docker + 权限代理）',
+    entity:'Anthropic', org:'Anthropic', type:'Launch', typeCls:'green',
+    topics:['computer-use','agent-security'],
+    occurred:'2026-08-06 21:40 UTC', captured:'2026-08-07 07:02',
+    dims:{Relevance:82, Impact:86, Novelty:80, Credibility:90, Urgency:76},
+    reasons:['research_paused:computer-use-sandbox → 建议恢复','topic_weight:computer-use=0.70','first_party_source'],
+    facts:[
+      '开源参考实现：容器化浏览器 + 文件系统隔离 + 出站白名单代理',
+      '提供权限分级配置（read-only / supervised / autonomous）',
+      '附红队测试脚本：覆盖提示注入驱动的越权操作场景',
+    ],
+    evidence:[
+      {kind:'一手 · GitHub Repo', url:'github.com/anthropics/computer-use-sandbox', captured:'07:02', conf:0.94},
+      {kind:'一手 · 官方博客', url:'anthropic.com/news/computer-use-sandbox', captured:'07:03', conf:0.90},
+    ],
+    card:{
+      what:'Anthropic 开源 Computer Use 沙箱参考实现，包含容器隔离、权限分级与红队测试脚本。',
+      why:'你曾研究「Computer Use 沙箱方案」（已暂停 36 天）——该事件直接回应当时的未决问题；Computer Use 近 7 天事件数翻倍（趋势 ↑）。',
+      diff:'此前社区方案（如自建 Playwright 容器）缺少权限分级与出站控制；官方实现把这两点做成了配置项。',
+      take:'出站白名单代理是亮点，可单独复用；红队脚本可作为 Agent Security 回归测试基线。',
+      action:'Clone & Test（约 15 分钟）· 建议恢复对应研究线程',
+      confidence:0.90,
+    },
+    related:[
+      {t:'研究线程「Computer Use 沙箱方案」暂停', d:'2026-07-02', note:'当时缺官方参考实现'},
+    ],
+  },
+  {
+    id:'ev-004', tier:'worth', total:78,
+    title:'mem0 v1.5：确定性重放与记忆审计 API',
+    entity:'mem0', org:'mem0ai', type:'Release', typeCls:'gold',
+    topics:['agent-memory'],
+    occurred:'2026-08-06 09:12 UTC', captured:'2026-08-07 07:01',
+    dims:{Relevance:80, Impact:72, Novelty:75, Credibility:78, Urgency:70},
+    reasons:['research_active:agent-memory','entity_viewed:mem0(2×)'],
+    facts:['新增 replay API：按时间点重放记忆状态','审计日志导出（JSONL）','向量后端支持 pgvector'],
+    evidence:[
+      {kind:'一手 · GitHub Release', url:'github.com/mem0ai/mem0/releases/tag/v1.5.0', captured:'07:01', conf:0.93},
+    ],
+    card:{
+      what:'mem0 发布 v1.5，新增记忆确定性重放与审计日志导出，向量后端支持 pgvector。',
+      why:'命中活跃研究「Agent 长期记忆方案对比」；你 7 月查看过 mem0 两次——本次更新正好补齐当时记录的缺口（审计能力）。',
+      diff:'v1.4 只有增删改查，无时间点重放；审计能力是你研究笔记里标注的三项缺口之一。',
+      take:'重放基于操作日志而非快照，大规模记忆下性能待验证。',
+      action:'5 min 看 changelog',
+      confidence:0.86,
+    },
+    related:[{t:'调研记录：mem0 审计能力缺失', d:'2026-07-22', note:'本次补齐'},],
+  },
+  {
+    id:'ev-005', tier:'worth', total:74,
+    title:'OpenAI Codex CLI 新增本地 diff review 模式',
+    entity:'Codex CLI', org:'OpenAI', type:'Release', typeCls:'gold',
+    topics:['ai-coding'],
+    occurred:'2026-08-06 16:30 UTC', captured:'2026-08-07 07:01',
+    dims:{Relevance:76, Impact:70, Novelty:68, Credibility:80, Urgency:65},
+    reasons:['topic_weight:ai-coding=0.90','entity_viewed:codex-cli'],
+    facts:['新增 codex review：对本地未提交变更做逐 hunk 审查','支持 --rules 引入项目规则文件'],
+    evidence:[
+      {kind:'一手 · GitHub Release', url:'github.com/openai/codex/releases', captured:'07:01', conf:0.90},
+    ],
+    card:{
+      what:'Codex CLI 新增本地 diff review 模式，可对未提交变更逐 hunk 审查并支持规则文件。',
+      why:'AI Coding 是你的最高权重主题（0.90）；与 Claude Code v3.0 同日发布，可对比两者的审查工作流。',
+      diff:'此前 Codex CLI 只有生成/执行模式，review 是新增的第三模式。',
+      take:'规则文件格式与 Claude Code 的 CLAUDE.md 不兼容，跨工具复用需要转换。',
+      action:'5 min 看文档',
+      confidence:0.84,
+    },
+    related:[],
+  },
+  {
+    id:'ev-006', tier:'worth', total:71,
+    title:'LangGraph 1.0 正式发布：状态持久化与 Checkpoint API 稳定',
+    entity:'LangGraph', org:'langchain-ai', type:'Release', typeCls:'gold',
+    topics:['ai-agent'],
+    occurred:'2026-08-05 20:15 UTC', captured:'2026-08-06 07:01',
+    dims:{Relevance:70, Impact:72, Novelty:65, Credibility:82, Urgency:60},
+    reasons:['topic_weight:ai-agent=0.65'],
+    facts:['1.0 承诺 API 稳定','Checkpoint 存储接口标准化（SQLite/Postgres/Redis）'],
+    evidence:[
+      {kind:'一手 · GitHub Release', url:'github.com/langchain-ai/langgraph/releases/tag/1.0.0', captured:'08-06 07:01', conf:0.91},
+    ],
+    card:{
+      what:'LangGraph 发布 1.0，状态持久化与 Checkpoint API 进入稳定承诺期。',
+      why:'AI Agent 主题权重 0.65；1.0 意味着可作为框架选型基线，改变此前"API 频繁变动"的评估结论。',
+      diff:'0.x 版本 checkpoint 接口经历过 3 次破坏性变更；1.0 冻结接口并提供迁移工具。',
+      take:'若你的 Agent 编排评估包含 LangGraph，现在可重开对比。',
+      action:'Watch',
+      confidence:0.82,
+    },
+    related:[],
+  },
+  {
+    id:'ev-007', tier:'worth', total:69,
+    title:'论文：针对 MCP Server 的工具描述注入攻击与防御',
+    entity:'arXiv 2608.01xxx', org:'学术论文', type:'Research', typeCls:'blue',
+    topics:['agent-security','mcp'],
+    occurred:'2026-08-06 02:00 UTC', captured:'2026-08-07 07:03',
+    dims:{Relevance:72, Impact:68, Novelty:74, Credibility:60, Urgency:62},
+    reasons:['topic_weight:agent-security=0.60','novelty:首篇系统性研究'],
+    facts:['构造 3 类工具描述注入载荷，实测 5 个主流 client','提出描述签名 + 运行时校验防御，开销 <3%'],
+    evidence:[
+      {kind:'二手 · 论文预印本', url:'arxiv.org/abs/2608.01xxx', captured:'07:03', conf:0.60},
+    ],
+    card:{
+      what:'论文系统性研究 MCP 工具描述注入攻击，提出描述签名防御方案。',
+      why:'Agent Security 趋势 ↑；该论文直接关联 MCP 草案新增的 security considerations 字段（见 ev-002）。',
+      diff:'此前注入研究集中在网页正文；这是首篇针对工具描述元数据的系统性研究。',
+      take:'预印本未经同行评审（Credibility 60，因此不进入 Must Read）；防御方案已被 MCP 草案引用。',
+      action:'5 min 读摘要',
+      confidence:0.71,
+    },
+    related:[{t:'MCP 草案新增 security considerations 字段', d:'2026-08-06', note:'同日事件 · 互为佐证'},],
+  },
+];
+
+const FILTERED_SAMPLES = [
+  {title:'某 AI 绘画创业公司完成 5000 万美元 B 轮融资', why:'命中排除标签：AI 绘画 + 纯融资', score:38},
+  {title:'「10 个最强 AI Agent 框架」榜单文章（媒体转述）', why:'与 ev-006 内容重复 + 二手来源', score:44},
+  {title:'Claude Code v3.0 发布（某科技媒体转述）', why:'已合并入 ev-001（evidence +1，不重复占用 Today）', score:'merged'},
+];
+
+const SOURCES = [
+  {id:'github:anthropics/claude-code',       type:'GitHub Release', status:'ok',   last:'07:00:41', fails:0, err:''},
+  {id:'github:modelcontextprotocol/spec',    type:'GitHub Release', status:'ok',   last:'07:00:44', fails:0, err:''},
+  {id:'github:mem0ai/mem0',                  type:'GitHub Release', status:'ok',   last:'07:00:47', fails:0, err:''},
+  {id:'github:langchain-ai/langgraph',       type:'GitHub Release', status:'ok',   last:'07:00:50', fails:0, err:''},
+  {id:'github:openai/codex',                 type:'GitHub Release', status:'ok',   last:'07:00:52', fails:0, err:''},
+  {id:'rss:anthropic.com/news',              type:'RSS',            status:'ok',   last:'07:01:10', fails:0, err:''},
+  {id:'rss:openai.com/blog',                 type:'RSS',            status:'ok',   last:'07:01:14', fails:0, err:''},
+  {id:'rss:modelcontextprotocol.io',         type:'RSS',            status:'ok',   last:'07:01:18', fails:0, err:''},
+  {id:'rss:simonwillison.net',               type:'RSS',            status:'ok',   last:'07:01:22', fails:0, err:''},
+  {id:'web:docs.anthropic.com/changelog',    type:'网页变更',        status:'warn', last:'07:02:05', fails:0, err:'连续 2 次检测到变更，待确认（防误报）'},
+  {id:'rss:ai-insight-weekly.example.com',   type:'RSS',            status:'err',  last:'08-06 07:01', fails:3, err:'HTTP 404 · 退避重试中（10/30/120 分钟）'},
+];
+const SOURCE_TOTAL = 25;
+
+const JOB_STAGES = [
+  {stage:'collect（采集）',    io:'25 来源 → 247 raw', dur:'6m02s', note:'24 成功 / 1 失败（失败隔离，不阻塞）'},
+  {stage:'normalize（归一化）',io:'247 → 118 候选',    dur:'41s',   note:'识别 entity / type / occurred_at'},
+  {stage:'dedup（去重聚类）',  io:'118 → 31 事件',     dur:'18s',   note:'合并 87 条：canonical URL 62 · 哈希 14 · 规则聚类 11'},
+  {stage:'score（规则评分）',  io:'31 事件',           dur:'9s',    note:'5 维度分项 + reason code'},
+  {stage:'analyze（LLM 分析）',io:'Top 12 → 7 Card',   dur:'3m47s', note:'便宜模型预筛 31→12；强模型生成 Card 12（5 条置信度不足降级）'},
+  {stage:'select（入选）',     io:'Must 3 + Worth 4',  dur:'2s',    note:'阈值 + 配额 + 多样性（同 Entity ≤2）'},
+  {stage:'backup（备份）',     io:'sqlite-backup.db',  dur:'5s',    note:'保留最近 7 份'},
+];
+
+const JOB_HISTORY = [
+  {date:'2026-08-07', status:'ok',   dur:'11m12s', cost:'¥3.42', note:''},
+  {date:'2026-08-06', status:'ok',   dur:'10m48s', cost:'¥2.87', note:''},
+  {date:'2026-08-05', status:'warn', dur:'12m33s', cost:'¥3.05', note:'1 来源失败重试后恢复'},
+  {date:'2026-08-04', status:'ok',   dur:'9m57s',  cost:'¥2.64', note:''},
+  {date:'2026-08-03', status:'warn', dur:'14m02s', cost:'¥0.61', note:'LLM 预算达上限，Card 降级为规则评分'},
+];
+
+const state = {
+  weights: Object.fromEntries(TOPICS.map(t=>[t.id,t.weight])),
+  weightLog: [{topic:'agent-memory', delta:+0.05, at:'08-04', reason:'feedback_up × 2'}],
+  feedback: {},          // eventId -> {action, reason}
+  pendingReason: null,   // 等待选择不相关原因的事件
+  laterIds: [],
+  memFeedback: [
+    {at:'08-06 08:12', event:'Codex CLI 支持项目规则文件', action:'useful', effect:'ai-coding +0.03'},
+    {at:'08-06 08:09', event:'某 Agent 框架融资榜单文章', action:'irrelevant', reason:'泛营销', effect:'来源降噪 1/3'},
+    {at:'08-05 07:44', event:'Computer Use 沙箱方案对比', action:'save', effect:'entity:anthropic 收藏'},
+    {at:'08-05 07:40', event:'LangGraph checkpoint 变更', action:'useful', effect:'ai-agent +0.03'},
+  ],
+  research: [
+    {id:'r1', name:'Agent 长期记忆方案对比', status:'active', started:'2026-07-20', expires:'剩 12 天（30 天衰减）', events:5},
+    {id:'r2', name:'Computer Use 沙箱方案', status:'paused', started:'2026-07-02', expires:'已暂停 36 天', events:3},
+  ],
+  entities: [
+    {name:'Claude Code', type:'Repo', rel:14, last:'今天', flag:'收藏+关注'},
+    {name:'MCP Specification', type:'Repo', rel:8, last:'今天', flag:'关注'},
+    {name:'Anthropic', type:'公司', rel:11, last:'今天', flag:'关注'},
+    {name:'mem0', type:'Repo', rel:5, last:'今天', flag:'已看过'},
+    {name:'Codex CLI', type:'Repo', rel:6, last:'今天', flag:'已看过'},
+    {name:'LangGraph', type:'Repo', rel:4, last:'昨天', flag:'已看过'},
+  ],
+  memTab: 'interest',
+};
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const topicName = id => (TOPICS.find(t=>t.id===id)||{}).name || id;
+
+function toast(msg, cls){
+  const t = document.createElement('div');
+  t.className = 'toast' + (cls?' '+cls:'');
+  t.innerHTML = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 4200);
+}
+
+function topbar(title, sub){
+  $('#topbar').innerHTML = `<h1>${title}</h1><span class="sub">${sub}</span>
+    <span class="proto-badge">原型演示 · Mock 数据 · ${TODAY} 周四</span>`;
+}
+
+function setActiveNav(name){
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.toggle('active', n.dataset.nav===name);
+  });
+}
+
+/* ---------------- feedback ---------------- */
+function feedbackState(ev){ return state.feedback[ev.id]; }
+
+function feedbackBar(ev){
+  const fb = feedbackState(ev);
+  if (fb && fb.action==='irrelevant'){
+    return `<div class="ev-foot"><span class="chip red">已标记不相关 · ${fb.reason}</span>
+      <button class="btn" data-act="fb-undo" data-id="${ev.id}">撤销</button></div>`;
+  }
+  if (state.pendingReason === ev.id){
+    return `<div class="reason-row"><span class="lbl">选择不相关原因：</span>
+      ${['泛营销','纯融资','重复内容','与我方向无关','其他'].map(r=>
+        `<button class="reason-pick" data-act="reason-pick" data-id="${ev.id}" data-reason="${r}">${r}</button>`).join('')}
+      <button class="btn" data-act="reason-cancel">取消</button></div>`;
+  }
+  const saved = fb && fb.action==='save';
+  const useful = fb && fb.action==='useful';
+  const later = state.laterIds.includes(ev.id);
+  return `<div class="ev-foot">
+    <button class="btn ${useful?'on':''}" data-act="fb-useful" data-id="${ev.id}">✓ 有用</button>
+    <button class="btn" data-act="fb-irrelevant" data-id="${ev.id}">✕ 不相关</button>
+    <button class="btn ${saved?'save-on':''}" data-act="fb-save" data-id="${ev.id}">★ ${saved?'已收藏':'收藏'}</button>
+    <button class="btn ${later?'on':''}" data-act="fb-later" data-id="${ev.id}">◷ ${later?'已稍后':'稍后再看'}</button>
+    <span class="mini" style="margin-left:auto">反馈将在下次排序生效 · 可撤销</span>
+  </div>`;
+}
+
+function applyFeedback(evId, action, reason){
+  const ev = EVENTS.find(e=>e.id===evId);
+  const mainTopic = ev.topics[0];
+  const now = '08-07 09:1' + Math.floor(Math.random()*9);
+  if (action==='useful'){
+    state.feedback[evId] = {action};
+    state.weights[mainTopic] = Math.min(1.0, +(state.weights[mainTopic]+0.03).toFixed(2));
+    state.weightLog.unshift({topic:mainTopic, delta:+0.03, at:'08-07', reason:'feedback:useful'});
+    state.memFeedback.unshift({at:now, event:ev.title, action:'useful', effect:`${topicName(mainTopic)} +0.03`});
+    toast(`已记录 <b>有用</b> → Interest Memory：<b>${topicName(mainTopic)}</b> 权重 +0.03<br><code>reason: relevance_up(topic=${mainTopic})</code>`);
+  } else if (action==='irrelevant'){
+    state.feedback[evId] = {action, reason};
+    state.weights[mainTopic] = Math.max(0.2, +(state.weights[mainTopic]-0.05).toFixed(2));
+    state.weightLog.unshift({topic:mainTopic, delta:-0.05, at:'08-07', reason:`feedback:irrelevant(${reason})`});
+    state.memFeedback.unshift({at:now, event:ev.title, action:'irrelevant', reason, effect:`${topicName(mainTopic)} −0.05 · 来源降噪 1/3`});
+    toast(`已记录 <b>不相关（${reason}）</b> → <b>${topicName(mainTopic)}</b> 权重 −0.05，负反馈快速生效<br><code>reason: topic_weight_down</code> · 可在 Memory 页撤销`, 'warn');
+  } else if (action==='save'){
+    const was = state.feedback[evId] && state.feedback[evId].action==='save';
+    state.feedback[evId] = was? null : {action};
+    if(!was){
+      state.memFeedback.unshift({at:now, event:ev.title, action:'save', effect:`entity:${ev.entity} 收藏`});
+      toast(`已收藏 → Entity Memory：<b>${ev.entity}</b>（用于相关性与新颖度）`);
+    }
+  } else if (action==='later'){
+    const i = state.laterIds.indexOf(evId);
+    if(i>=0) state.laterIds.splice(i,1); else { state.laterIds.push(evId); toast('已加入稍后再看（不占用今日配额）'); }
+  } else if (action==='undo'){
+    delete state.feedback[evId];
+    toast('已撤销该反馈 → 对应权重调整已回滚（feedback delta rollback）');
+  }
+  state.pendingReason = null;
+}
+
+/* ---------------- card render ---------------- */
+function scoreBreakdown(ev, compact){
+  const weights = {Relevance:'35%', Impact:'25%', Novelty:'15%', Credibility:'15%', Urgency:'10%'};
+  return Object.entries(ev.dims).map(([k,v])=>`
+    <div class="scoreline"><span class="dim">${k} · ${weights[k]}</span>
+      <span class="bar"><span class="fill" style="width:${v}%"></span></span>
+      <span class="val">${v}</span></div>`).join('') +
+    (compact? '' : `<details class="reasons"><summary>为什么是这个分数（reason codes）</summary>
+      <div class="reason-codes">${ev.reasons.map(r=>`<span class="rc">${r}</span>`).join('')}</div></details>`);
+}
+
+function eventCard(ev){
+  const fb = feedbackState(ev);
+  const faded = fb && fb.action==='irrelevant';
+  const later = state.laterIds.includes(ev.id);
+  return `<div class="ev-card ${ev.tier} ${faded?'faded':''}">
+    <div class="ev-head">
+      <div>
+        <div class="ev-title" data-act="open" data-id="${ev.id}">${ev.title}</div>
+        <div class="ev-meta">
+          <span class="chip type">${ev.entity}</span>
+          <span class="chip ${ev.typeCls}">${ev.type}</span>
+          ${ev.topics.map(t=>`<span class="chip">${topicName(t)}</span>`).join('')}
+          <span class="chip">⏱ ${ev.occurred.split('（')[0]}</span>
+          ${later?'<span class="chip blue">◷ 稍后再看</span>':''}
+        </div>
+      </div>
+      <div class="score-badge ${ev.tier}">${ev.total}</div>
+    </div>
+    <div class="ev-why"><b>Why it matters：</b>${ev.card.why}</div>
+    ${scoreBreakdown(ev, true)}
+    ${feedbackBar(ev)}
+  </div>`;
+}
+
+/* ---------------- pages ---------------- */
+function pageToday(){
+  topbar('Today', `每日情报 · 扫描 → 压缩 → 推荐 · 07:00 处理北京时间昨日数据（Asia/Shanghai）`);
+  setActiveNav('today');
+  const must = EVENTS.filter(e=>e.tier==='must');
+  const worth = EVENTS.filter(e=>e.tier==='worth');
+  return `
+  <div class="mini" style="margin:0 0 10px 2px;color:var(--worth)">数据窗口：2026-08-06（北京时间昨日）· freshness: fresh · 采集于今日 07:00</div>
+  <div class="strip">
+    <div class="cell"><div class="num">247</div><div class="lbl">扫描 Raw Items（25 来源）</div></div>
+    <div class="cell"><div class="num">31</div><div class="lbl">去重后候选事件</div></div>
+    <div class="cell"><div class="num ok">7</div><div class="lbl">最终推荐（Must 3 + Worth 4）</div></div>
+    <div class="cell"><div class="num">24</div><div class="lbl">被过滤（含合并 87 条重复）</div></div>
+    <div class="cell"><div class="num err">1</div><div class="lbl">来源异常 · <a href="#/sources">查看</a></div></div>
+  </div>
+
+  <div class="sec-head"><h2>Must Read</h2><span class="cnt">${must.length} / 3</span>
+    <span class="hint">total ≥80 · Relevance ≥70 · Credibility ≥70 · 每条 30–90 秒可决策</span></div>
+  ${must.map(eventCard).join('')}
+
+  <div class="sec-head"><h2>Worth Knowing</h2><span class="cnt">${worth.length} / 5</span>
+    <span class="hint">total ≥65 · 同一 Entity 最多 2 条</span></div>
+  ${worth.map(eventCard).join('')}
+
+  <div class="sec-head"><h2>过滤审计（示例）</h2><span class="cnt">${FILTERED_SAMPLES.length}</span>
+    <span class="hint">配额未满时宁缺毋滥 · 不低质填充</span></div>
+  <div class="panelbox">
+    ${FILTERED_SAMPLES.map(f=>`<div class="rel">
+      <span>${f.title}</span>
+      <span class="d">${f.score==='merged'?'已合并':f.score+' 分'} · ${f.why}</span></div>`).join('')}
+  </div>
+
+  <div class="sec-head"><h2>Daily Brief</h2><span class="cnt">P1 · 站内日报预览</span></div>
+  <details><summary style="cursor:pointer;color:var(--accent);font-size:12.5px">展开今日 Brief（固定产物，阅读约 5 分钟）</summary>
+  <div class="brief-block" style="margin-top:10px">
+    <h4>MUST READ（3）</h4>
+    ① Claude Code v3.0 内置 Agent Memory —— 命中你的记忆方案研究，建议 Clone &amp; Test<br>
+    ② MCP 2026-08 草案：异步调用 + OAuth —— 解决你记录过的两个痛点<br>
+    ③ Anthropic 开源 Computer Use 沙箱 —— 建议恢复对应研究线程
+    <h4>WORTH KNOWING（4）</h4>
+    mem0 v1.5 补齐审计缺口 · Codex CLI review 模式 · LangGraph 1.0 · MCP 注入攻击论文
+    <h4>TREND SIGNAL（1）</h4>
+    Agent Memory ↑ —— 近 7 天 8 个事件支撑（≥3 事件才出现趋势判断，不凭空生成）
+    <h4>WATCHLIST CHANGES</h4>
+    Claude Code（Release）· MCP Specification（Spec PR）
+    <h4>IGNORED</h4>
+    另有 24 条候选被过滤：营销/融资 9 · 重复 11 · 低相关 4
+  </div></details>`;
+}
+
+function pageEvent(id){
+  const ev = EVENTS.find(e=>e.id===id);
+  if(!ev) return pageToday();
+  topbar('Event Detail', `${ev.id} · 事实与推断分离 · 全部结论可追溯到 Evidence`);
+  setActiveNav('today');
+  return `
+  <span class="back" data-act="back-today">← 返回 Today</span>
+  <div class="detail-grid">
+    <div>
+      <div class="panelbox" style="margin-bottom:14px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div>
+            <div style="font-size:17px;font-weight:650">${ev.title}</div>
+            <div class="ev-meta" style="margin-top:7px">
+              <span class="chip ${ev.tier==='must'?'gold':'blue'}">${ev.tier==='must'?'Must Read':'Worth Knowing'} · ${ev.total}</span>
+              <span class="chip type">${ev.entity}（${ev.org}）</span>
+              <span class="chip ${ev.typeCls}">${ev.type}</span>
+              <span class="chip">发生 ${ev.occurred}</span>
+              <span class="chip">采集 ${ev.captured}</span>
+              <span class="chip green">Card 置信度 ${ev.card.confidence}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panelbox" style="margin-bottom:14px">
+        <h3>Intelligence Card（LLM 生成 · 受 Evidence 约束）</h3>
+        <div class="card-field"><div class="k">What happened</div><div class="v">${ev.card.what}</div></div>
+        <div class="card-field"><div class="k">Why it matters to you</div><div class="v">${ev.card.why}</div></div>
+        <div class="card-field"><div class="k">What is different</div><div class="v">${ev.card.diff}</div></div>
+        <div class="card-field"><div class="k">Technical take（事实与推断分段）</div><div class="v">${ev.card.take}</div></div>
+        <div class="card-field" style="margin-bottom:0"><div class="k b">Recommended action</div>
+          <div class="v"><span class="chip green" style="font-size:12.5px">${ev.card.action}</span></div></div>
+      </div>
+
+      <div class="panelbox" style="margin-bottom:14px">
+        <h3>事实（facts_json · 结构化提取）</h3>
+        <ul class="facts">${ev.facts.map(f=>`<li>${f}</li>`).join('')}</ul>
+      </div>
+
+      <div class="panelbox" style="margin-bottom:14px">
+        <h3>Evidence（${ev.evidence.length}）· 无证据不推荐</h3>
+        ${ev.evidence.map(e=>`<div class="evd">
+          <span class="kind">${e.kind}</span>
+          <div><div class="u"><a href="javascript:void 0">${e.url}</a></div>
+          <div class="m">captured_at ${TODAY} ${e.captured} · 提取置信度 ${e.conf}</div></div>
+        </div>`).join('')}
+      </div>
+
+      <div class="panelbox">
+        <h3>历史关联（FTS5 + Entity/Topic 结构化查询）</h3>
+        ${ev.related.length? ev.related.map(r=>`<div class="rel">
+          <span>${r.t}<div class="mini">${r.note}</div></span><span class="d">${r.d}</span></div>`).join('')
+          : '<div class="empty-hint">无历史关联事件</div>'}
+      </div>
+    </div>
+
+    <div>
+      <div class="panelbox" style="margin-bottom:14px">
+        <h3>评分明细（score_snapshot · 不可覆盖）</h3>
+        ${scoreBreakdown(ev, false)}
+        <div class="mini" style="margin-top:9px">model: claude-sonnet · prompt_v4 · schema_v2 · ${ev.captured}</div>
+      </div>
+      <div class="panelbox">
+        <h3>反馈</h3>
+        ${feedbackBar(ev)}
+      </div>
+    </div>
+  </div>`;
+}
+
+function pageWatchlist(){
+  topbar('Watchlist', '让系统盯什么 · Topic / Entity / Source');
+  setActiveNav('watchlist');
+  return `
+  <div class="sec-head"><h2>Topics</h2><span class="cnt">${TOPICS.length} / 6</span>
+    <span class="hint">权重参与 Relevance（35%）· 反馈缓慢调整 · 显式设置优先</span></div>
+  <table><thead><tr><th>Topic</th><th>优先级</th><th>当前权重</th><th>反馈调整</th><th>近 7 天事件</th><th>操作</th></tr></thead><tbody>
+  ${TOPICS.map(t=>{
+    const delta = +(state.weights[t.id]-t.base).toFixed(2);
+    return `<tr>
+      <td><b>${t.name}</b></td>
+      <td><span class="chip ${t.priority==='high'?'gold':''}">${t.priority==='high'?'高':'普通'}</span></td>
+      <td><span class="weightbar"><span class="fill" style="width:${state.weights[t.id]*100}%"></span></span>
+        &nbsp;${state.weights[t.id].toFixed(2)}</td>
+      <td>${delta===0?'<span class="mini">—</span>':`<span class="chip ${delta>0?'green':'red'}">${delta>0?'+':''}${delta}</span>`}</td>
+      <td>${t.d7} <span class="mini">(上周 ${t.d7prev})</span></td>
+      <td><button class="btn" data-act="wl-topic-pause" data-id="${t.id}">暂停</button>
+          <button class="btn danger" data-act="wl-topic-del" data-id="${t.id}">删除</button></td>
+    </tr>`;}).join('')}
+  </tbody></table>
+
+  <div class="sec-head"><h2>重点实体</h2><span class="cnt">${state.entities.length}</span>
+    <span class="hint">新增时系统检查 URL 类型与可采集性</span></div>
+  <table><thead><tr><th>实体</th><th>类型</th><th>关联事件</th><th>最近事件</th><th>标记</th><th>操作</th></tr></thead><tbody>
+  ${state.entities.map(e=>`<tr>
+    <td><b>${e.name}</b></td><td><span class="chip type">${e.type}</span></td>
+    <td>${e.rel}</td><td>${e.last}</td><td><span class="chip ${e.flag.includes('收藏')?'gold':''}">${e.flag}</span></td>
+    <td><button class="btn" data-act="wl-ent-pause" data-id="${e.name}">暂停</button>
+        <button class="btn danger" data-act="wl-ent-del" data-id="${e.name}">删除</button></td>
+  </tr>`).join('')}
+  </tbody></table>
+
+  <div class="sec-head"><h2>添加实体 / 来源</h2></div>
+  <div class="panelbox" style="display:flex;gap:10px;align-items:center">
+    <input type="text" id="wl-input" placeholder="粘贴 GitHub Repo / RSS / 官方页面 URL…" style="flex:1">
+    <button class="btn" data-act="wl-add">检查并添加</button>
+  </div>
+  <div class="mini" style="margin-top:8px">来源总数 ${SOURCE_TOTAL}（10 Repo + 10 RSS/Blog + 5 Changelog/Docs）· 采集健康见 <a href="#/sources">Source Health</a></div>`;
+}
+
+function pageRadar(){
+  topbar('Radar', 'Topic 趋势 · P1 · 每个趋势必须有 ≥3 个可追溯事件支撑，不凭空判断');
+  setActiveNav('radar');
+  return `
+  <table><thead><tr><th>Topic</th><th>趋势（7 天 vs 上周）</th><th>近 7 天</th><th>近 30 天</th><th>支撑</th></tr></thead><tbody>
+  ${TOPICS.map(t=>{
+    const up = t.trend==='up';
+    return `<tr>
+      <td><b>${t.name}</b></td>
+      <td><span class="${up?'trend-up':'trend-flat'}">${up?'↑ 升温':'→ 平稳'}</span>
+        <span class="spark">${[3,5,2,6,4,7,t.d7].map(v=>`<i style="height:${v*3}px"></i>`).join('')}</span></td>
+      <td>${t.d7} <span class="mini">(上周 ${t.d7prev})</span></td>
+      <td>${t.d30}</td>
+      <td><details><summary class="mini" style="cursor:pointer;color:var(--accent)">查看支撑事件</summary>
+        <div class="mini" style="padding:6px 0">
+          ${EVENTS.filter(e=>e.topics.includes(t.id)).map(e=>`· <a href="#/event/${e.id}">${e.title}</a><br>`).join('') || '· 近 7 天事件见 Today/历史库'}
+        </div></details></td>
+    </tr>`;}).join('')}
+  </tbody></table>
+  <div class="mini" style="margin-top:10px">规则：趋势 ↑ 需近 7 天事件数 ≥3 且 ≥上周 1.5 倍；趋势判断全部可点开核对证据。</div>`;
+}
+
+function pageMemory(){
+  topbar('Memory', 'AI 记住我什么 · 可见 / 可编辑 / 可删除 / 可暂停 · 删除后立即停止参与排序');
+  setActiveNav('memory');
+  const tab = state.memTab;
+  const tabs = [['interest','Interest 兴趣'],['entity','Entity 实体'],['research','Research 研究'],['feedback','Feedback 反馈']];
+  let body = '';
+
+  if(tab==='interest'){
+    body = `<table><thead><tr><th>Topic</th><th>权重</th><th>来源</th><th>最近调整</th><th>操作</th></tr></thead><tbody>
+    ${TOPICS.map(t=>{
+      const logs = state.weightLog.filter(l=>l.topic===t.id);
+      return `<tr>
+        <td><b>${t.name}</b></td>
+        <td><span class="weightbar"><span class="fill" style="width:${state.weights[t.id]*100}%"></span></span> ${state.weights[t.id].toFixed(2)}</td>
+        <td><span class="chip ${t.weight>t.base?'green':''}">显式设置${state.weights[t.id]>t.base?' + 反馈':''}</span></td>
+        <td>${logs.length?`<span class="chip ${logs[0].delta>0?'green':'red'}">${logs[0].delta>0?'+':''}${logs[0].delta} · ${logs[0].at}</span> <span class="mini">${logs[0].reason}</span>`:'<span class="mini">—</span>'}</td>
+        <td><button class="btn" data-act="mem-edit" data-id="${t.id}">Edit</button></td>
+      </tr>`;}).join('')}
+    </tbody></table>
+    <div class="mini" style="margin-top:8px">规则：显式 &gt; 隐式 · 单次点击只形成低置信度短期证据 · 权重范围 [0.2, 1.0]</div>`;
+  }
+  else if(tab==='entity'){
+    body = `<table><thead><tr><th>实体</th><th>类型</th><th>标记</th><th>用途</th><th>操作</th></tr></thead><tbody>
+    ${state.entities.map(e=>`<tr>
+      <td><b>${e.name}</b></td><td><span class="chip type">${e.type}</span></td>
+      <td><span class="chip ${e.flag.includes('收藏')?'gold':''}">${e.flag}</span></td>
+      <td class="mini">相关性 + 新颖度（不因单次点击永久强化）</td>
+      <td><button class="btn danger" data-act="mem-ent-forget" data-id="${e.name}">Forget</button></td>
+    </tr>`).join('')}</tbody></table>`;
+  }
+  else if(tab==='research'){
+    body = state.research.map(r=>`
+    <div class="panelbox" style="margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="flex:1">
+        <b>${r.name}</b>
+        <div class="mini">开始 ${r.started} · ${r.expires} · 关联 ${r.events} 个事件 · 短期高权重</div>
+      </div>
+      <span class="chip ${r.status==='active'?'green':'red'}">${r.status==='active'?'进行中':'已暂停'}</span>
+      <button class="btn" data-act="research-toggle" data-id="${r.id}">${r.status==='active'?'Pause':'Start'}</button>
+      <button class="btn danger" data-act="mem-del" data-id="research:${r.id}">Forget</button>
+    </div>`).join('') +
+    `<div class="mini">规则：Research 默认 30 天衰减 · 用户主动 Start/Pause · 近期 Research &gt; 久远行为</div>`;
+  }
+  else {
+    body = `<table><thead><tr><th>时间</th><th>事件</th><th>动作</th><th>对排序的影响</th><th>操作</th></tr></thead><tbody>
+    ${state.memFeedback.map((f,i)=>`<tr>
+      <td class="mini">${f.at}</td>
+      <td>${f.event}</td>
+      <td><span class="chip ${f.action==='useful'?'green':f.action==='irrelevant'?'red':'gold'}">
+        ${f.action==='useful'?'有用':f.action==='irrelevant'?'不相关·'+(f.reason||''): '收藏'}</span></td>
+      <td class="mini">${f.effect}</td>
+      <td><button class="btn" data-act="fb-rollback" data-id="${i}">撤销</button></td>
+    </tr>`).join('')}</tbody></table>
+    <div class="mini" style="margin-top:8px">反馈立即影响下一次排序 · 撤销会回滚对应权重 delta</div>`;
+  }
+
+  return `
+  <div class="tabs">${tabs.map(([k,l])=>`<div class="tab ${tab===k?'active':''}" data-act="mem-tab" data-id="${k}">${l}</div>`).join('')}
+    <span class="mini" style="align-self:center;margin-left:10px">Pause learning：全部自动学习可一键暂停</span>
+    <button class="btn" style="margin-left:auto" data-act="pause-learning">Pause learning</button>
+  </div>
+  ${body}`;
+}
+
+function pageSources(){
+  topbar('Source Health', `${SOURCE_TOTAL} 个来源 · 采集失败 ≠ 没有变化 · 单来源失败不阻塞整批`);
+  setActiveNav('sources');
+  const okN = SOURCES.filter(s=>s.status==='ok').length;
+  return `
+  <div class="strip" style="grid-template-columns:repeat(4,1fr)">
+    <div class="cell"><div class="num">${SOURCE_TOTAL}</div><div class="lbl">启用来源</div></div>
+    <div class="cell"><div class="num ok">${okN + (SOURCE_TOTAL-SOURCES.length)}</div><div class="lbl">健康</div></div>
+    <div class="cell"><div class="num warn">${SOURCES.filter(s=>s.status==='warn').length}</div><div class="lbl">待确认（网页变更防误报）</div></div>
+    <div class="cell"><div class="num err">${SOURCES.filter(s=>s.status==='err').length}</div><div class="lbl">失败（退避重试中）</div></div>
+  </div>
+  <table><thead><tr><th>来源</th><th>类型</th><th>状态</th><th>last_success_at</th><th>连续失败</th><th>最近错误 / 备注</th><th>操作</th></tr></thead><tbody>
+  ${SOURCES.map(s=>`<tr>
+    <td style="font-family:Consolas,monospace;font-size:12px">${s.id}</td>
+    <td><span class="chip type">${s.type}</span></td>
+    <td><span class="status ${s.status}"><span class="dot"></span>${s.status==='ok'?'正常':s.status==='warn'?'待确认':'失败'}</span></td>
+    <td class="mini">${s.last}</td>
+    <td>${s.fails||'—'}</td>
+    <td class="mini">${s.err||'—'}</td>
+    <td>${s.status!=='ok'?`<button class="btn" data-act="src-retry" data-id="${s.id}">重试</button>`:'<span class="mini">—</span>'}</td>
+  </tr>`).join('')}
+  </tbody></table>
+  <div class="mini" style="margin-top:8px">重试策略：失败后 10 / 30 / 120 分钟指数退避 · 每次运行记录 fetched / created / unchanged / failed / duration_ms</div>`;
+}
+
+function pageJobs(){
+  topbar('Jobs & 成本', 'Daily Job 07:00（Asia/Shanghai）处理昨日数据 · 租约锁防重复 · 阶段化指标');
+  setActiveNav('jobs');
+  return `
+  <div class="grid2">
+    <div class="panelbox">
+      <h3>今日 Daily Job · <span style="color:var(--ok)">success</span></h3>
+      <div class="mini" style="margin-bottom:8px">07:00:12 → 07:11:24（11m12s）· 数据窗口 2026-08-06（昨日）· worker: node dist/worker.js daily · lease 正常释放</div>
+      <table style="background:transparent;border:none"><thead><tr><th>阶段</th><th>输入→输出</th><th>耗时</th><th>备注</th></tr></thead><tbody>
+      ${JOB_STAGES.map(s=>`<tr><td style="font-family:Consolas,monospace;font-size:12px">${s.stage}</td>
+        <td class="mini">${s.io}</td><td>${s.dur}</td><td class="mini">${s.note}</td></tr>`).join('')}
+      </tbody></table>
+    </div>
+    <div>
+      <div class="panelbox" style="margin-bottom:14px">
+        <h3>LLM 成本（今日）</h3>
+        <div style="font-size:20px;font-weight:700">¥3.42 <span class="mini" style="font-weight:400">/ 硬上限 ¥10.00 · 达上限后保留采集与规则评分，停止深度分析</span></div>
+        <div class="budgetbar"><div class="fill" style="width:34.2%"></div></div>
+        <div class="mini">便宜模型预筛 31→12 候选 · ¥0.31（84k tokens）<br>强模型 Card 分析 ×12 · ¥3.11（126k tokens）<br>按 source / stage / model 记录 token · latency · cost · error_code</div>
+      </div>
+      <div class="panelbox">
+        <h3>管理操作</h3>
+        <button class="btn" data-act="job-run">▶ 手动运行 daily job</button>
+        <div class="mini" style="margin-top:7px">本地模式直接执行；remote 模式要求 admin token（POST /api/admin/jobs/daily/run）</div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-head"><h2>最近 job_run</h2><span class="cnt">7 天</span></div>
+  <table><thead><tr><th>日期</th><th>状态</th><th>耗时</th><th>成本</th><th>备注</th></tr></thead><tbody>
+  ${JOB_HISTORY.map(j=>`<tr>
+    <td>${j.date}</td>
+    <td><span class="status ${j.status}"><span class="dot"></span>${j.status==='ok'?'success':'degraded'}</span></td>
+    <td>${j.dur}</td><td>${j.cost}</td><td class="mini">${j.note||'—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+function pageSettings(){
+  topbar('Settings', 'profile_id = local · 单用户 · 无登录');
+  setActiveNav('settings');
+  return `
+  <div class="grid2">
+    <div class="panelbox">
+      <h3>采集与输出</h3>
+      <div class="form-row"><span class="k">时区</span><select><option>Asia/Shanghai（UTC+8）</option></select></div>
+      <div class="form-row"><span class="k">每日采集时间</span><input type="text" value="07:00" style="width:90px"> <span class="mini">处理北京时间前一自然日数据 · 失败 10/30/120 分钟退避</span></div>
+      <div class="form-row"><span class="k">Today 配额</span>Must Read ≤ <input type="text" value="3" style="width:50px"> · Worth ≤ <input type="text" value="5" style="width:50px"></div>
+      <div class="form-row"><span class="k">每日阅读预算</span><input type="text" value="10" style="width:60px"> 分钟</div>
+      <div class="form-row"><span class="k">Raw 数据保留</span><input type="text" value="90" style="width:60px"> 天 <span class="mini">事件与证据长期保留</span></div>
+      <div class="form-row"><span class="k">远程访问</span><span class="chip green">仅 localhost</span> <span class="mini">remote 需 HTTPS + 认证 + admin token</span></div>
+    </div>
+    <div class="panelbox">
+      <h3>LLM 与个性化</h3>
+      <div class="form-row"><span class="k">强模型（Card 分析）</span><select><option>claude-sonnet（默认）</option><option>gpt-5-mini</option></select></div>
+      <div class="form-row"><span class="k">便宜模型（预筛）</span><select><option>claude-haiku（默认）</option></select></div>
+      <div class="form-row"><span class="k">每日 LLM 预算</span>¥ <input type="text" value="10" style="width:70px"> <span class="mini">硬上限 · 超限降级不丢采集</span></div>
+      <div class="form-row"><span class="k">不感兴趣标签</span>
+        <span><span class="chip red">泛营销 ×</span><span class="chip red">纯融资 ×</span><span class="chip red">AI 绘画 ×</span><span class="chip red">榜单盘点 ×</span></span></div>
+      <div class="form-row"><span class="k">评分阈值</span><span class="mini">Must ≥80 · Worth ≥65 · 由历史评测集校准（评测集 n=100）</span></div>
+    </div>
+  </div>
+  <div style="margin-top:14px"><button class="btn" data-act="save-settings">保存设置</button>
+  <span class="mini" style="margin-left:10px">所有写入经 Zod 校验 · 设置变更写入 settings_json 并可回放</span></div>`;
+}
+
+/* ---------------- router ---------------- */
+function render(){
+  const hash = location.hash || '#/today';
+  const m = hash.match(/^#\/event\/(.+)$/);
+  let html;
+  if (m) html = pageEvent(m[1]);
+  else if (hash==='#/watchlist') html = pageWatchlist();
+  else if (hash==='#/radar') html = pageRadar();
+  else if (hash==='#/memory') html = pageMemory();
+  else if (hash==='#/sources') html = pageSources();
+  else if (hash==='#/jobs') html = pageJobs();
+  else if (hash==='#/settings') html = pageSettings();
+  else html = pageToday();
+  $('#view').innerHTML = html;
+}
+
+window.addEventListener('hashchange', render);
+
+document.body.addEventListener('click', e=>{
+  const nav = e.target.closest('.nav-item[data-nav]');
+  if (nav){ location.hash = '#/' + nav.dataset.nav; return; }
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id;
+  const ev = EVENTS.find(x=>x.id===id);
+
+  switch(act){
+    case 'open': location.hash = '#/event/'+id; break;
+    case 'back-today': location.hash = '#/today'; break;
+    case 'mem-tab': state.memTab = id; render(); break;
+
+    case 'fb-useful': applyFeedback(id,'useful'); render(); break;
+    case 'fb-save': applyFeedback(id,'save'); render(); break;
+    case 'fb-later': applyFeedback(id,'later'); render(); break;
+    case 'fb-undo': applyFeedback(id,'undo'); render(); break;
+    case 'fb-irrelevant': state.pendingReason = id; render(); break;
+    case 'reason-cancel': state.pendingReason = null; render(); break;
+    case 'reason-pick': applyFeedback(id,'irrelevant',el.dataset.reason); render(); break;
+    case 'fb-rollback': {
+      const f = state.memFeedback[+id];
+      state.memFeedback.splice(+id,1);
+      toast(`已撤销反馈「${f.event}」→ 对应权重 delta 回滚（显式 &gt; 隐式，可撤销）`);
+      render(); break;
+    }
+
+    case 'mem-edit': toast('原型演示：此处打开权重编辑对话框（Edit 后立即生效）'); break;
+    case 'mem-del': toast('已删除该 Research Memory → 立即停止参与排序，并从后续备份周期清除','warn'); break;
+    case 'mem-ent-forget': toast(`已 Forget「${id}」→ 该实体不再参与相关性与新颖度计算`,'warn'); break;
+    case 'pause-learning': toast('Pause learning：已暂停全部自动偏好学习（显式设置仍然生效）','warn'); break;
+    case 'research-toggle': {
+      const r = state.research.find(x=>x.id===id);
+      r.status = r.status==='active'?'paused':'active';
+      toast(r.status==='active'
+        ? `已恢复研究「${r.name}」→ 重新获得短期高权重（近期 Research &gt; 久远行为）`
+        : `已暂停研究「${r.name}」→ 不再加成相关事件`, 'warn');
+      render(); break;
+    }
+
+    case 'src-retry': {
+      const s = SOURCES.find(x=>x.id===id);
+      s.status='warn'; s.err='手动重试中…'; render();
+      setTimeout(()=>{ s.status='ok'; s.err=''; s.fails=0; s.last='刚刚';
+        toast(`来源 <b>${id}</b> 重试成功 → 状态恢复正常（写入 source_run）`);
+        if(location.hash==='#/sources') render(); }, 1400);
+      break;
+    }
+
+    case 'wl-add': {
+      const v = $('#wl-input').value.trim();
+      if(!v){ toast('请先粘贴 URL','err'); break; }
+      toast(`可采集性检查通过：<b>${v}</b> 已识别为 RSS 来源并加入 Watchlist（首次采集将限制回填近 7 天）`);
+      $('#wl-input').value='';
+      break;
+    }
+    case 'wl-topic-pause': toast(`已暂停 Topic「${topicName(id)}」→ 不再参与评分与推荐（可随时恢复）`,'warn'); break;
+    case 'wl-topic-del': toast(`已删除 Topic「${topicName(id)}」→ 相关 Memory 保留，仅解除 Watch 关系`,'warn'); break;
+    case 'wl-ent-pause': toast(`已暂停实体「${id}」`,'warn'); break;
+    case 'wl-ent-del': toast(`已从 Watchlist 删除「${id}」（历史事件与 Memory 不受影响）`,'warn'); break;
+
+    case 'job-run': toast('已触发手动 daily job → job_run 获取租约锁，防止与 07:00 Cron 重复执行'); break;
+    case 'save-settings': toast('设置已保存 → profile.settings_json 更新（Zod 校验通过）'); break;
+  }
+});
+
+render();
+</script>
+</body>
+</html>

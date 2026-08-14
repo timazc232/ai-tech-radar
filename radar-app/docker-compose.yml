@@ -1,0 +1,33 @@
+services:
+  radar:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATABASE_PATH=/app/data/radar.db
+      - TIMEZONE=Asia/Shanghai
+    restart: unless-stopped
+
+  cron:
+    image: radar-app:latest
+    entrypoint: ["/bin/sh"]
+    command: ["-c", "crontab /app/cron.tab && crond -f -l 2"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+      - ./cron.tab:/app/cron.tab:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - DATABASE_PATH=/app/data/radar.db
+    restart: unless-stopped
+    depends_on:
+      - radar

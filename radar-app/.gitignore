@@ -1,0 +1,31 @@
+# deps
+node_modules
+.pnp
+.pnp.js
+
+# next
+.next
+out
+build
+dist
+
+# data & logs
+data/
+logs/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.bak
+
+# env
+.env
+.env.local
+.env*.local
+
+# misc
+.DS_Store
+*.pem
+coverage
+*.tsbuildinfo
+next-env.d.ts

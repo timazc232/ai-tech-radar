@@ -1,0 +1,10 @@
+{
+  "models": {
+    "deepseek-chat": { "input_per_1m": 2.0, "output_per_1m": 8.0, "currency": "CNY" },
+    "deepseek-reasoner": { "input_per_1m": 4.0, "output_per_1m": 16.0, "currency": "CNY" },
+    "claude-sonnet-5": { "input_per_1m": 3.0, "output_per_1m": 15.0, "currency": "USD" },
+    "claude-haiku-4-5-20251001": { "input_per_1m": 0.8, "output_per_1m": 4.0, "currency": "USD" },
+    "claude-opus-5": { "input_per_1m": 15.0, "output_per_1m": 75.0, "currency": "USD" }
+  },
+  "fx_usd_to_cny": 7.2
+}

@@ -1,0 +1,8 @@
+# 每日 07:00 北京时间跑前一天数据 (A1)
+0 7 * * * /usr/local/bin/node /app/dist/cli.js daily >> /app/logs/cron.log 2>&1
+
+# 每小时检测断跑并补跑 (§3.4)
+0 * * * * /usr/local/bin/node /app/dist/cli.js daily_backfill >> /app/logs/cron.log 2>&1
+
+# 每周日凌晨备份 (§8.4)
+0 3 * * 0 /usr/local/bin/node /app/dist/cli.js backup >> /app/logs/cron.log 2>&1
