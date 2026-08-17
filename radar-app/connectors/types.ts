@@ -4,6 +4,7 @@ export interface CollectorResult {
   items: RawItem[];
   newCursor: string | null;
   newEtag: string | null;
+  warning?: string;
   rateLimit?: { remaining: number; resetAt: string };
 }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/PageHeader';
+import Link from 'next/link';
 
 interface Topic { id: string; name: string }
 interface Item {
@@ -25,13 +26,18 @@ export default function WatchlistPage() {
   const [topicId, setTopicId] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function load() {
-    const res = await fetch('/api/watchlist');
-    const json = await res.json();
-    setSources(json.data.sources);
-    setTopics(json.data.topics);
-    if (!topicId && json.data.topics[0]) setTopicId(json.data.topics[0].id);
+    try {
+      const res = await fetch('/api/watchlist');
+      const json = await res.json();
+      setSources(json.data.sources);
+      setTopics(json.data.topics);
+      if (!topicId && json.data.topics[0]) setTopicId(json.data.topics[0].id);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -80,9 +86,16 @@ export default function WatchlistPage() {
   return (
     <main>
       <PageHeader
-        title="Watchlist"
-        subtitle="让系统盯什么 · Topic / 来源。新增时会检查 URL 类型与可采集性。"
+        title="关注来源"
+        subtitle="这里管理内置源与自定义源；运行健康和错误诊断统一在“来源健康”查看。"
+        actions={<Link href="/sources" className="btn">查看来源健康</Link>}
       />
+
+      <div className="card p-4 mb-6 text-sm text-[var(--muted)]">
+        已内置 GitHub、官方公告、Hacker News、Linux.do、Lobsters，以及可选的 X / Reddit。你在这里新增或暂停来源，不需要维护另一份独立列表。
+      </div>
+
+      {loading && <div className="card p-6 mb-6 text-center text-sm text-[var(--muted)]" role="status">正在读取来源…</div>}
 
       <section className="mb-8">
         <div className="flex items-center gap-2 mb-3">
@@ -124,7 +137,7 @@ export default function WatchlistPage() {
           <span className="inline-block h-3.5 w-1 rounded bg-[var(--radar)]" />
           <h2 className="text-sm font-semibold tracking-wide uppercase">来源</h2>
           <span className="text-xs text-[var(--faint)] mono">
-            {sources.length} · GH {typeCount('github')} · RSS {typeCount('rss')} · Web {typeCount('web')}
+            {sources.length} · GitHub {typeCount('github')} · RSS {typeCount('rss')} · 网页 {typeCount('web')} · 社区 API {typeCount('api')}
           </span>
         </div>
         <div className="card overflow-x-auto">

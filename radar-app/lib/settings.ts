@@ -14,6 +14,9 @@ export const SETTING_KEYS = [
   'anthropic_api_key',
   'openai_api_key',
   'openrouter_api_key',
+  'x_bearer_token',
+  'reddit_client_id',
+  'reddit_client_secret',
   'llm_strong_model',
   'llm_cheap_model',
   'llm_daily_budget_yuan',
@@ -40,6 +43,15 @@ export function setSetting(key: SettingKey, value: string): void {
 
 export function effectiveGitHubToken(): string {
   return getSetting('github_token') || cfg.githubToken;
+}
+
+export function effectiveSocialCredentials() {
+  return {
+    xBearerToken: getSetting('x_bearer_token') || process.env.X_BEARER_TOKEN || '',
+    redditClientId: getSetting('reddit_client_id') || process.env.REDDIT_CLIENT_ID || '',
+    redditClientSecret: getSetting('reddit_client_secret') || process.env.REDDIT_CLIENT_SECRET || '',
+    redditUserAgent: process.env.REDDIT_USER_AGENT || 'ai-tech-radar/0.1 by local-user',
+  };
 }
 
 export interface EffectiveLLM {
@@ -101,6 +113,11 @@ export function settingsView() {
   const llm = effectiveLLM();
   return {
     githubToken: secretInfo(getSetting('github_token'), cfg.githubToken),
+    social: {
+      xBearerToken: secretInfo(getSetting('x_bearer_token'), process.env.X_BEARER_TOKEN || ''),
+      redditClientId: secretInfo(getSetting('reddit_client_id'), process.env.REDDIT_CLIENT_ID || ''),
+      redditClientSecret: secretInfo(getSetting('reddit_client_secret'), process.env.REDDIT_CLIENT_SECRET || ''),
+    },
     llm: {
       provider: llm.provider,
       apiKey: secretInfo(

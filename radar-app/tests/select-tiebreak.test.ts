@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { selectDaily, tieBreakSort, applyTopicCap, tierLabel, type ScoredEvent } from '@/modules/scoring/select';
+import { selectDaily, tieBreakSort, applyEntityCap, applyTopicCap, tierLabel, type ScoredEvent } from '@/modules/scoring/select';
 import { DEFAULT_THRESHOLDS } from '@/modules/domain/enums';
 
 function mk(id: string, total: number, relevance: number, entityId: string, occurredAt: string, topicId?: string): ScoredEvent {
@@ -57,6 +57,16 @@ describe('select / tie-break (§7.7)', () => {
     // 4 items -> cap = ceil(4/2) = 2; topic1 should have at most 2
     const topic1Count = r.filter((s) => s.topicId === 'topic1').length;
     expect(topic1Count).toBeLessThanOrEqual(2);
+  });
+
+  it('entity cap keeps patch trains from dominating a tier', () => {
+    const scored = [
+      mk('patch3', 79, 80, 'same-project', '2026-08-06T12:00:00Z'),
+      mk('patch2', 78, 80, 'same-project', '2026-08-06T11:00:00Z'),
+      mk('patch1', 77, 80, 'same-project', '2026-08-06T10:00:00Z'),
+      mk('other', 76, 80, 'other-project', '2026-08-06T09:00:00Z'),
+    ];
+    expect(applyEntityCap(scored).map((event) => event.eventId)).toEqual(['patch3', 'patch2', 'other']);
   });
 
   it('tierLabel classifies correctly', () => {

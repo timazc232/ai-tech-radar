@@ -84,6 +84,7 @@ export async function runDaily(opts: DailyRunOptions = {}): Promise<{ jobId: str
     const sources = db().select().from(source).where(inArray(source.status, ['active', 'error'])).all();
     let allRaws: RawItem[] = [];
     let sourceAnomalies = 0;
+    let optionalSourcesSkipped = 0;
     for (const s of sources) {
       const srcObj: Source = {
         id: s.id,
@@ -97,13 +98,14 @@ export async function runDaily(opts: DailyRunOptions = {}): Promise<{ jobId: str
       try {
         const collector = getCollector(srcObj);
         const result = await collector.fetch(srcObj, window);
+        if (result.warning) optionalSourcesSkipped++;
         allRaws = allRaws.concat(result.items);
         // update cursor/etag; a successful fetch restores the source to active
         db().update(source).set({
           status: 'active',
           config: { ...srcObj.config, cursor: result.newCursor, etag: result.newEtag },
           lastFetchedAt: new Date().toISOString(),
-          lastError: null,
+          lastError: result.warning ?? null,
         }).where(eq(source.id, s.id)).run();
       } catch (err) {
         sourceAnomalies++;
@@ -155,6 +157,7 @@ export async function runDaily(opts: DailyRunOptions = {}): Promise<{ jobId: str
       worthWatching: worthWatching.length,
       filtered: filtered.length,
       sourceAnomalies,
+      optionalSourcesSkipped,
       translated: i18n.translated,
       organized: briefing.organized + briefing.heuristic,
     };

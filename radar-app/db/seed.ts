@@ -14,7 +14,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const configDir = join(__dirname, '..', 'config');
 
 interface TopicSeed { id: string; name: string; keywords: string[] }
-interface SourceSeed { id: string; type: string; url: string; entity: string; topic: string }
+interface SourceSeed {
+  id: string;
+  type: string;
+  url: string;
+  entity: string;
+  topic: string;
+  config?: Record<string, unknown>;
+}
 
 function main() {
   const topics = JSON.parse(readFileSync(join(configDir, 'topics.json'), 'utf8')) as TopicSeed[];
@@ -50,7 +57,7 @@ function main() {
       id: s.id,
       type: s.type,
       url: s.url,
-      config: { noise_factor: 1.0, cursor: null, etag: null, last_modified: null },
+      config: { noise_factor: 1.0, cursor: null, etag: null, last_modified: null, ...s.config },
       status: 'active',
       entityId,
       topicId: s.topic,

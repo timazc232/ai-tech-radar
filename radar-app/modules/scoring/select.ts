@@ -18,6 +18,7 @@ export interface ScoredEvent {
  * 2) Worth Watching: worth <= total < must
  * 3) Tie-break (in order): total DESC -> relevance DESC -> entity diversity -> occurredAt DESC
  * 4) Single-topic cap: ceil(count/2) to prevent one topic dominating
+ * 5) Single-entity cap: at most 2 entries per tier, so patch trains do not dominate
  */
 export function selectDaily(scored: ScoredEvent[], opts = THRESHOLDS): {
   mustRead: ScoredEvent[];
@@ -29,10 +30,20 @@ export function selectDaily(scored: ScoredEvent[], opts = THRESHOLDS): {
   const filtered = scored.filter((s) => s.total < opts.worth);
 
   return {
-    mustRead: applyTopicCap(tieBreakSort(mustRead)),
-    worthWatching: applyTopicCap(tieBreakSort(worthWatching)),
+    mustRead: applyEntityCap(applyTopicCap(tieBreakSort(mustRead))),
+    worthWatching: applyEntityCap(applyTopicCap(tieBreakSort(worthWatching))),
     filtered,
   };
+}
+
+export function applyEntityCap(list: ScoredEvent[], cap = 2): ScoredEvent[] {
+  const counts = new Map<string, number>();
+  return list.filter((event) => {
+    const count = counts.get(event.entityId) ?? 0;
+    if (count >= cap) return false;
+    counts.set(event.entityId, count + 1);
+    return true;
+  });
 }
 
 export function tieBreakSort(list: ScoredEvent[]): ScoredEvent[] {

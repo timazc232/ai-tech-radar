@@ -76,7 +76,9 @@ function FeedbackBtn({
     <button
       type="button"
       onClick={onClick}
-      className={`btn !py-1 !px-2 ${active ? activeCls : hover}`}
+      aria-label={label}
+      aria-pressed={active}
+      className={`btn !py-1 !px-2 min-h-11 min-w-11 justify-center sm:min-h-0 sm:min-w-0 ${active ? activeCls : hover}`}
     >
       <FeedbackIcon name={icon} />
       <span className="hidden sm:inline">{label}</span>

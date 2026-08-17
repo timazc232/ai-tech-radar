@@ -1,4 +1,4 @@
-import { getBriefForDate, listBriefDates, prepareDisplayEvents } from '@/modules/pipeline/brief';
+import { getBriefForDate, groupRelatedBriefEvents, listBriefDates, prepareDisplayEvents } from '@/modules/pipeline/brief';
 import { dataWindow, shiftBeijingDate, windowLabel, type Freshness } from '@/lib/time';
 import { EventCard } from '@/components/EventCard';
 import { RunJobButton } from '@/components/RunJobButton';
@@ -12,9 +12,9 @@ export const maxDuration = 180;
 
 function freshnessLabel(f: Freshness): { text: string; cls: string } {
   switch (f) {
-    case 'fresh': return { text: 'fresh', cls: 'badge-fresh' };
-    case 'stale': return { text: 'stale', cls: 'badge-stale' };
-    case 'pending': return { text: 'pending', cls: 'badge-pending' };
+    case 'fresh': return { text: '已更新', cls: 'badge-fresh' };
+    case 'stale': return { text: '待刷新', cls: 'badge-stale' };
+    case 'pending': return { text: '生成中', cls: 'badge-pending' };
   }
 }
 
@@ -37,8 +37,8 @@ export default async function TodayPage({
     <header className="mb-7">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="serif text-2xl font-semibold tracking-tight">Today</h1>
-          <p className="text-xs text-[var(--muted)] mt-1">官方公告 + 仓库发布 · 默认看近 7 天</p>
+          <h1 className="serif text-2xl font-semibold tracking-tight">今日简报</h1>
+          <p className="text-xs text-[var(--muted)] mt-1">官方公告 + 仓库发布 + 热门社区 · 默认看近 7 天</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={`badge ${fl.cls}`}>
@@ -92,7 +92,7 @@ export default async function TodayPage({
           )}
           {!githubOk && (
             <p className="text-xs text-[var(--faint)] mt-4">
-              GitHub 采集需要 Token，请先到 <Link href="/settings" className="link">Settings</Link> 填写。
+              GitHub 采集需要 Token，请先到 <Link href="/settings" className="link">设置</Link> 填写。
             </p>
           )}
         </div>
@@ -101,7 +101,7 @@ export default async function TodayPage({
   }
 
   const metrics = brief.metrics as { scanned: number; candidates: number; recommended: number; filtered: number; sourceAnomalies: number };
-  const items = await prepareDisplayEvents(brief.selectedEventIds as string[]);
+  const items = groupRelatedBriefEvents(await prepareDisplayEvents(brief.selectedEventIds as string[]));
   const mustItems = items.filter((i) => i.total >= 80);
   const worthItems = items.filter((i) => i.total >= 65 && i.total < 80);
 
@@ -124,9 +124,9 @@ export default async function TodayPage({
         </div>
       )}
 
-      <Section title="Must Read" count={mustItems.length} tier="must">
+      <Section title="必读" count={mustItems.length} tier="must">
         {mustItems.length === 0 ? (
-          <EmptyHint text="本日无 Must Read 事件（total ≥ 80）" />
+          <EmptyHint text="本日无必读事件（综合分 ≥ 80）" />
         ) : (
           <div className="space-y-3">
             {mustItems.map((i) => (
@@ -136,9 +136,9 @@ export default async function TodayPage({
         )}
       </Section>
 
-      <Section title="Worth Watching" count={worthItems.length} tier="worth">
+      <Section title="值得关注" count={worthItems.length} tier="worth">
         {worthItems.length === 0 ? (
-          <EmptyHint text="本日无 Worth Watching 事件（65 ≤ total &lt; 80）" />
+          <EmptyHint text="本日无值得关注事件（65 ≤ 综合分 &lt; 80）" />
         ) : (
           <div className="space-y-3">
             {worthItems.map((i) => (

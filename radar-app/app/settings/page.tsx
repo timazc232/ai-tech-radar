@@ -11,6 +11,11 @@ interface SecretInfo {
 
 interface SettingsData {
   githubToken: SecretInfo;
+  social: {
+    xBearerToken: SecretInfo;
+    redditClientId: SecretInfo;
+    redditClientSecret: SecretInfo;
+  };
   llm: {
     provider: string;
     apiKey: SecretInfo;
@@ -23,6 +28,9 @@ interface SettingsData {
 export default function SettingsPage() {
   const [data, setData] = useState<SettingsData | null>(null);
   const [githubToken, setGithubToken] = useState('');
+  const [xBearerToken, setXBearerToken] = useState('');
+  const [redditClientId, setRedditClientId] = useState('');
+  const [redditClientSecret, setRedditClientSecret] = useState('');
   const [provider, setProvider] = useState('deepseek');
   const [apiKey, setApiKey] = useState('');
   const [strongModel, setStrongModel] = useState('');
@@ -53,6 +61,9 @@ export default function SettingsPage() {
       budgetYuan: Number(budgetYuan),
     };
     if (githubToken) body.githubToken = githubToken;
+    if (xBearerToken) body.xBearerToken = xBearerToken;
+    if (redditClientId) body.redditClientId = redditClientId;
+    if (redditClientSecret) body.redditClientSecret = redditClientSecret;
     if (apiKey) body[`${provider}ApiKey`] = apiKey;
 
     try {
@@ -64,6 +75,9 @@ export default function SettingsPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error?.message ?? 'save failed');
       setGithubToken('');
+      setXBearerToken('');
+      setRedditClientId('');
+      setRedditClientSecret('');
       setApiKey('');
       setToast('已保存');
       await load();
@@ -77,7 +91,7 @@ export default function SettingsPage() {
 
   return (
     <main>
-      <h1 className="text-xl font-bold mb-6">Settings</h1>
+      <h1 className="text-xl font-bold mb-6">设置</h1>
 
       {!data ? (
         <p className="text-[var(--muted)]">加载中…</p>
@@ -99,6 +113,50 @@ export default function SettingsPage() {
             <p className="text-xs text-[var(--faint)] mt-2">
               获取：<a className="link" href="https://github.com/settings/tokens/new" target="_blank" rel="noreferrer">github.com/settings/tokens/new</a>，勾选 public_repo
             </p>
+          </section>
+
+          <section className="card p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-block h-3.5 w-1 rounded bg-[var(--worth)]" />
+              <h2 className="font-semibold">社区 API（可选）</h2>
+            </div>
+            <p className="text-sm text-[var(--muted)] mb-4">
+              X 与 Reddit 仅使用官方 API。未配置时会安全跳过，不影响 GitHub、RSS 和公开社区源。
+            </p>
+            <div className="space-y-4">
+              <label className="block text-sm">
+                <SecretStatus info={data.social.xBearerToken} label="X Bearer Token" />
+                <input
+                  type="password"
+                  value={xBearerToken}
+                  onChange={(e) => setXBearerToken(e.target.value)}
+                  placeholder={data.social.xBearerToken.configured ? '已配置，输入新值以覆盖' : 'X Developer Bearer Token'}
+                  className="input mt-2.5 mono"
+                />
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-sm">
+                  <SecretStatus info={data.social.redditClientId} label="Reddit Client ID" />
+                  <input
+                    type="password"
+                    value={redditClientId}
+                    onChange={(e) => setRedditClientId(e.target.value)}
+                    placeholder={data.social.redditClientId.configured ? '已配置，输入新值以覆盖' : 'Reddit App Client ID'}
+                    className="input mt-2.5 mono"
+                  />
+                </label>
+                <label className="text-sm">
+                  <SecretStatus info={data.social.redditClientSecret} label="Reddit Client Secret" />
+                  <input
+                    type="password"
+                    value={redditClientSecret}
+                    onChange={(e) => setRedditClientSecret(e.target.value)}
+                    placeholder={data.social.redditClientSecret.configured ? '已配置，输入新值以覆盖' : 'Reddit App Secret'}
+                    className="input mt-2.5 mono"
+                  />
+                </label>
+              </div>
+            </div>
           </section>
 
           <section className="card p-5">

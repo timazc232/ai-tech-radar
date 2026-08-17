@@ -1,5 +1,5 @@
 import { db } from '@/db/client';
-import { dailyBrief, scoreSnapshot, event, entity, intelligenceCard } from '@/db/schema';
+import { dailyBrief, scoreSnapshot, event, entity, intelligenceCard, eventEvidence } from '@/db/schema';
 import { eq, desc, and, gte, lt } from 'drizzle-orm';
 import { selectDaily, type ScoredEvent } from '@/modules/scoring/select';
 import { dataWindow, windowForDate } from '@/lib/time';
@@ -126,6 +126,9 @@ export interface HydratedBriefEvent {
   titleZh?: string | null;
   whyZh?: string | null;
   briefing?: EventBriefing | null;
+  relatedCount?: number;
+  relatedTitles?: string[];
+  sourceCount?: number;
 }
 
 /** Fill missing briefing + 中文 before display. Idempotent; already-stored rows are skipped. */
@@ -150,6 +153,9 @@ export function hydrateBriefEvents(ids: string[]): HydratedBriefEvent[] {
     const card = db().select().from(intelligenceCard).where(eq(intelligenceCard.eventId, id)).get();
     const zh = getEventZh(id);
     const briefing = getEventBriefing(id);
+    const sourceCount = new Set(
+      db().select({ sourceId: eventEvidence.sourceId }).from(eventEvidence).where(eq(eventEvidence.eventId, id)).all().map((row) => row.sourceId),
+    ).size;
     return {
       id,
       title: ev.title,
@@ -166,6 +172,33 @@ export function hydrateBriefEvents(ids: string[]): HydratedBriefEvent[] {
       titleZh: zh?.titleZh,
       whyZh: zh?.whyZh,
       briefing,
+      sourceCount: Math.max(1, sourceCount),
     };
   }).filter(Boolean) as HydratedBriefEvent[];
+}
+
+/** Fold consecutive releases for the same entity into one readable update train. */
+export function groupRelatedBriefEvents(items: HydratedBriefEvent[]): HydratedBriefEvent[] {
+  const output: HydratedBriefEvent[] = [];
+  const releaseIndex = new Map<string, number>();
+  for (const item of items) {
+    if (item.type !== 'release') {
+      output.push(item);
+      continue;
+    }
+    const existingIndex = releaseIndex.get(item.entityName);
+    if (existingIndex === undefined) {
+      releaseIndex.set(item.entityName, output.length);
+      output.push({ ...item, relatedCount: 1, relatedTitles: [item.title] });
+      continue;
+    }
+    const existing = output[existingIndex];
+    output[existingIndex] = {
+      ...existing,
+      relatedCount: (existing.relatedCount ?? 1) + 1,
+      relatedTitles: [...(existing.relatedTitles ?? [existing.title]), item.title],
+      sourceCount: Math.max(existing.sourceCount ?? 1, item.sourceCount ?? 1),
+    };
+  }
+  return output;
 }

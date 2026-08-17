@@ -5,14 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const NAV = [
-  { href: '/', label: 'Today' },
-  { href: '/watchlist', label: 'Watchlist' },
-  { href: '/radar', label: 'Radar' },
-  { href: '/memory', label: 'Memory' },
-  { href: '/inbox', label: 'Inbox' },
-  { href: '/sources', label: 'Sources' },
-  { href: '/jobs', label: 'Jobs' },
-  { href: '/settings', label: 'Settings' },
+  { href: '/', label: '今日简报' },
+  { href: '/watchlist', label: '关注来源' },
+  { href: '/radar', label: '趋势雷达' },
+  { href: '/memory', label: '偏好记忆' },
+  { href: '/inbox', label: '稍后阅读' },
+  { href: '/sources', label: '来源健康' },
+  { href: '/jobs', label: '任务记录' },
+  { href: '/settings', label: '设置' },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -53,14 +53,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="app-shell lg:pl-[216px]">
       <header className="lg:hidden sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg)]/90 backdrop-blur px-4 py-3 flex items-center justify-between">
         <Link href="/" className="serif font-semibold tracking-tight text-sm">Radar</Link>
-        <button type="button" className="btn !py-1" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label="打开导航">
-          菜单
+        <button type="button" className="btn !py-1 min-h-11" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? '关闭导航' : '打开导航'}>
+          {open ? '关闭' : '菜单'}
         </button>
       </header>
       {open && (
-        <div className="lg:hidden border-b border-[var(--border)] bg-[var(--bg-panel)] px-4 py-3 space-y-3">
+        <div id="mobile-navigation" className="lg:hidden border-b border-[var(--border)] bg-[var(--bg-panel)] px-4 py-3 space-y-3">
           {nav}
-          <form onSubmit={search}>
+          <form onSubmit={search} className="flex gap-2">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -68,6 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className="input"
               aria-label="搜索事件"
             />
+            <button type="submit" className="btn btn-primary shrink-0" disabled={q.trim().length < 2}>搜索</button>
           </form>
         </div>
       )}
@@ -78,7 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span className="block text-[11px] text-[var(--faint)] mt-0.5">每日技术简报</span>
         </Link>
         {nav}
-        <form onSubmit={search} className="mt-3 px-0.5">
+        <form onSubmit={search} className="mt-3 px-0.5 flex gap-1.5">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -86,6 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="input !py-1.5 !text-xs"
             aria-label="搜索事件"
           />
+          <button type="submit" className="btn !px-2" disabled={q.trim().length < 2} aria-label="提交搜索">搜索</button>
         </form>
         <div className="mt-auto pt-4 px-2 text-[10px] text-[var(--faint)] border-t border-[var(--border)]">
           默认扫描近 7 天

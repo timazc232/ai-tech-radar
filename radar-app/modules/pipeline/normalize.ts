@@ -88,6 +88,29 @@ function extractByType(payload: Record<string, unknown>, source: { type: string;
       canonical: (payload.canonicalUrl as string) ?? canonicalUrl(source.url),
     };
   }
+  if (payload.kind === 'community') {
+    const title = (payload.title as string) ?? '(untitled)';
+    const link = (payload.link as string) ?? source.url;
+    const discussionUrl = (payload.discussionUrl as string) ?? link;
+    const community = (payload.community as string) ?? extractEntityFromUrl(source.url);
+    const facts: Fact[] = [
+      { key: 'source', value: community },
+      { key: 'author', value: (payload.author as string) ?? 'unknown' },
+      { key: 'score', value: String(payload.score ?? 0) },
+      { key: 'comments', value: String(payload.commentCount ?? 0) },
+      { key: 'discussion', value: discussionUrl },
+    ];
+    const tags = Array.isArray(payload.tags) ? payload.tags.filter((tag): tag is string => typeof tag === 'string') : [];
+    if (tags.length) facts.push({ key: 'tags', value: tags.join(', ') });
+    if (payload.content) facts.push({ key: 'summary', value: String(payload.content).slice(0, 500) });
+    return {
+      title,
+      occurredAt: (payload.publishedAt as string) ?? new Date().toISOString(),
+      facts,
+      entityName: community,
+      canonical: canonicalUrl(link),
+    };
+  }
   // fallback
   const title = (payload.title as string) ?? 'event';
   return {

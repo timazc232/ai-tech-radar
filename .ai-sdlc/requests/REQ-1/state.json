@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "request_id": "REQ-1",
+  "title": "AI Tech Radar 产品体验与社区信号扩展",
+  "owner": "timazc232",
+  "issue": "https://github.com/timazc232/ai-tech-radar/issues/1",
+  "risk": "R1",
+  "repository": "timazc232/ai-tech-radar",
+  "base_branch": "main",
+  "current_stage": "implementation",
+  "status": "active",
+  "created_at": "2026-08-17T02:48:14+00:00",
+  "updated_at": "2026-08-17T05:40:23+00:00",
+  "evidence": {
+    "business_problem_confirmed": {
+      "actor": "timazc232",
+      "source": "In-app browser product audit and user approval",
+      "recorded_at": "2026-08-17T03:32:45+00:00"
+    },
+    "issue_documented": {
+      "actor": "timazc232",
+      "source": "https://github.com/timazc232/ai-tech-radar/issues/1",
+      "recorded_at": "2026-08-17T03:32:58+00:00"
+    },
+    "risk_classified": {
+      "actor": "timazc232",
+      "source": "R1 optional external APIs no schema migration no deployment",
+      "recorded_at": "2026-08-17T03:34:00+00:00"
+    },
+    "product_approved": {
+      "actor": "timazc232",
+      "source": "User requested all prioritized optimizations and added community coverage",
+      "recorded_at": "2026-08-17T03:34:11+00:00"
+    },
+    "design_document_complete": {
+      "actor": "timazc232",
+      "source": ".ai-sdlc/requests/REQ-1/技术设计.md",
+      "recorded_at": "2026-08-17T03:35:05+00:00"
+    },
+    "api_document_complete": {
+      "actor": "timazc232",
+      "source": ".ai-sdlc/requests/REQ-1/接口文档.md",
+      "recorded_at": "2026-08-17T03:35:05+00:00"
+    },
+    "design_approved": {
+      "actor": "timazc232",
+      "source": "User authorized commit and push on 2026-08-17",
+      "recorded_at": "2026-08-17T05:39:51+00:00"
+    },
+    "tasks_ready": {
+      "actor": "timazc232",
+      "source": "Parent issue 1 with child issues 2 through 7",
+      "recorded_at": "2026-08-17T05:39:51+00:00"
+    },
+    "issue_decomposition_verified": {
+      "actor": "timazc232",
+      "source": "https://github.com/timazc232/ai-tech-radar/issues/1 children: https://github.com/timazc232/ai-tech-radar/issues/2, https://github.com/timazc232/ai-tech-radar/issues/3, https://github.com/timazc232/ai-tech-radar/issues/4, https://github.com/timazc232/ai-tech-radar/issues/5, https://github.com/timazc232/ai-tech-radar/issues/6, https://github.com/timazc232/ai-tech-radar/issues/7",
+      "recorded_at": "2026-08-17T05:40:23+00:00"
+    }
+  },
+  "history": [
+    {
+      "at": "2026-08-17T02:48:14+00:00",
+      "event": "initialized",
+      "actor": "timazc232",
+      "risk": "R1",
+      "issue": "https://github.com/timazc232/ai-tech-radar/issues/1"
+    },
+    {
+      "at": "2026-08-17T03:32:45+00:00",
+      "event": "evidence_recorded",
+      "key": "business_problem_confirmed",
+      "actor": "timazc232",
+      "source": "In-app browser product audit and user approval",
+      "recorded_at": "2026-08-17T03:32:45+00:00"
+    },
+    {
+      "at": "2026-08-17T03:32:58+00:00",
+      "event": "evidence_recorded",
+      "key": "issue_documented",
+      "actor": "timazc232",
+      "source": "https://github.com/timazc232/ai-tech-radar/issues/1",
+      "recorded_at": "2026-08-17T03:32:58+00:00"
+    },
+    {
+      "at": "2026-08-17T03:33:39+00:00",
+      "event": "stage_advanced",
+      "from_stage": "discovery",
+      "to_stage": "compliance"
+    },
+    {
+      "at": "2026-08-17T03:34:00+00:00",
+      "event": "evidence_recorded",
+      "key": "risk_classified",
+      "actor": "timazc232",
+      "source": "R1 optional external APIs no schema migration no deployment",
+      "recorded_at": "2026-08-17T03:34:00+00:00"
+    },
+    {
+      "at": "2026-08-17T03:34:00+00:00",
+      "event": "stage_advanced",
+      "from_stage": "compliance",
+      "to_stage": "product"
+    },
+    {
+      "at": "2026-08-17T03:34:11+00:00",
+      "event": "evidence_recorded",
+      "key": "product_approved",
+      "actor": "timazc232",
+      "source": "User requested all prioritized optimizations and added community coverage",
+      "recorded_at": "2026-08-17T03:34:11+00:00"
+    },
+    {
+      "at": "2026-08-17T03:34:11+00:00",
+      "event": "stage_advanced",
+      "from_stage": "product",
+      "to_stage": "design"
+    },
+    {
+      "at": "2026-08-17T03:35:05+00:00",
+      "event": "evidence_recorded",
+      "key": "design_document_complete",
+      "actor": "timazc232",
+      "source": ".ai-sdlc/requests/REQ-1/技术设计.md",
+      "recorded_at": "2026-08-17T03:35:05+00:00"
+    },
+    {
+      "at": "2026-08-17T03:35:05+00:00",
+      "event": "evidence_recorded",
+      "key": "api_document_complete",
+      "actor": "timazc232",
+      "source": ".ai-sdlc/requests/REQ-1/接口文档.md",
+      "recorded_at": "2026-08-17T03:35:05+00:00"
+    },
+    {
+      "at": "2026-08-17T05:39:51+00:00",
+      "event": "evidence_recorded",
+      "key": "design_approved",
+      "actor": "timazc232",
+      "source": "User authorized commit and push on 2026-08-17",
+      "recorded_at": "2026-08-17T05:39:51+00:00"
+    },
+    {
+      "at": "2026-08-17T05:39:51+00:00",
+      "event": "stage_advanced",
+      "from_stage": "design",
+      "to_stage": "planning"
+    },
+    {
+      "at": "2026-08-17T05:39:51+00:00",
+      "event": "evidence_recorded",
+      "key": "tasks_ready",
+      "actor": "timazc232",
+      "source": "Parent issue 1 with child issues 2 through 7",
+      "recorded_at": "2026-08-17T05:39:51+00:00"
+    },
+    {
+      "at": "2026-08-17T05:40:23+00:00",
+      "event": "evidence_recorded",
+      "key": "issue_decomposition_verified",
+      "actor": "timazc232",
+      "source": "https://github.com/timazc232/ai-tech-radar/issues/1 children: https://github.com/timazc232/ai-tech-radar/issues/2, https://github.com/timazc232/ai-tech-radar/issues/3, https://github.com/timazc232/ai-tech-radar/issues/4, https://github.com/timazc232/ai-tech-radar/issues/5, https://github.com/timazc232/ai-tech-radar/issues/6, https://github.com/timazc232/ai-tech-radar/issues/7",
+      "recorded_at": "2026-08-17T05:40:23+00:00"
+    },
+    {
+      "at": "2026-08-17T05:40:23+00:00",
+      "event": "stage_advanced",
+      "from_stage": "planning",
+      "to_stage": "implementation"
+    }
+  ]
+}

@@ -28,5 +28,10 @@
   { "id": "src_deepseek_changelog", "type": "web", "url": "https://api-docs.deepseek.com/updates/", "entity": "deepseek", "topic": "topic_llm" },
   { "id": "src_anthropic_news", "type": "web", "url": "https://www.anthropic.com/news", "entity": "anthropic", "topic": "topic_llm" },
   { "id": "src_openai_news", "type": "web", "url": "https://openai.com/news", "entity": "openai", "topic": "topic_llm" },
-  { "id": "src_cursor_changelog", "type": "web", "url": "https://cursor.com/changelog", "entity": "cursor", "topic": "topic_devtool" }
+  { "id": "src_cursor_changelog", "type": "web", "url": "https://cursor.com/changelog", "entity": "cursor", "topic": "topic_devtool" },
+  { "id": "src_hackernews_best", "type": "api", "url": "https://hacker-news.firebaseio.com/v0/beststories.json", "entity": "hackernews", "topic": "topic_devtool", "config": { "source_tier": "community", "max_items": 60, "min_score": 20 } },
+  { "id": "src_linuxdo_latest", "type": "rss", "url": "https://linux.do/latest.rss", "entity": "linuxdo", "topic": "topic_devtool", "config": { "source_tier": "community", "max_items": 60 } },
+  { "id": "src_lobsters_hottest", "type": "api", "url": "https://lobste.rs/hottest.json", "entity": "lobsters", "topic": "topic_devtool", "config": { "source_tier": "community", "max_items": 60, "min_score": 5 } },
+  { "id": "src_x_ai_leaders", "type": "api", "url": "https://api.x.com/2/tweets/search/recent", "entity": "x-ai-leaders", "topic": "topic_llm", "config": { "source_tier": "social", "max_items": 50, "min_score": 10, "query": "(from:sama OR from:ylecun OR from:karpathy OR from:demishassabis OR from:OpenAI OR from:AnthropicAI) -is:retweet" } },
+  { "id": "src_reddit_ai", "type": "api", "url": "https://oauth.reddit.com/r/MachineLearning+LocalLLaMA+artificial/hot.json", "entity": "reddit-ai", "topic": "topic_llm", "config": { "source_tier": "social", "max_items": 60, "min_score": 10 } }
 ]

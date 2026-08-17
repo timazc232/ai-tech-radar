@@ -10,6 +10,10 @@ export const SourceConfig = z.object({
   cursor: z.string().nullable().default(null),
   etag: z.string().nullable().default(null),
   last_modified: z.string().nullable().default(null),
+  source_tier: z.enum(['official', 'community', 'social']).optional(),
+  query: z.string().optional(),
+  max_items: z.number().int().positive().max(100).optional(),
+  min_score: z.number().min(0).optional(),
 });
 export type SourceConfig = z.infer<typeof SourceConfig>;
 

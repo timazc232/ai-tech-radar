@@ -11,6 +11,9 @@ export async function GET() {
 
 const Body = z.object({
   githubToken: z.string().optional(),
+  xBearerToken: z.string().optional(),
+  redditClientId: z.string().optional(),
+  redditClientSecret: z.string().optional(),
   llmProvider: z.enum(['deepseek', 'anthropic', 'openai', 'openrouter']).optional(),
   deepseekApiKey: z.string().optional(),
   anthropicApiKey: z.string().optional(),
@@ -23,6 +26,9 @@ const Body = z.object({
 
 const FIELD_TO_KEY: Record<string, SettingKey> = {
   githubToken: 'github_token',
+  xBearerToken: 'x_bearer_token',
+  redditClientId: 'reddit_client_id',
+  redditClientSecret: 'reddit_client_secret',
   llmProvider: 'llm_provider',
   deepseekApiKey: 'deepseek_api_key',
   anthropicApiKey: 'anthropic_api_key',

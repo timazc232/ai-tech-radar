@@ -18,20 +18,34 @@ interface Job {
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [cost, setCost] = useState<{ spentYuan: number; budgetYuan: number; date: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   async function load() {
-    const res = await fetch('/api/jobs');
-    const json = await res.json();
-    const payload = json.data;
-    if (Array.isArray(payload)) {
-      setJobs(payload);
-    } else {
-      setJobs(payload.jobs ?? []);
-      setCost(payload.cost ?? null);
+    try {
+      setError(null);
+      const res = await fetch('/api/jobs');
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message ?? '任务记录加载失败');
+      const payload = json.data;
+      if (Array.isArray(payload)) {
+        setJobs(payload);
+      } else {
+        setJobs(payload.jobs ?? []);
+        setCost(payload.cost ?? null);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const timer = window.setInterval(load, 5000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const latest = jobs[0];
   const pct = cost && cost.budgetYuan > 0 ? Math.min(100, (cost.spentYuan / cost.budgetYuan) * 100) : 0;
@@ -39,7 +53,7 @@ export default function JobsPage() {
   return (
     <main>
       <PageHeader
-        title="Jobs & 成本"
+        title="任务与成本"
         subtitle="Daily Job 处理北京时间昨日数据 · 租约锁防重复 · 本地可直接手动跑"
         actions={
           <div className="flex gap-2">
@@ -52,7 +66,11 @@ export default function JobsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <section className="card p-5">
           <h2 className="font-semibold mb-2">最近一次任务</h2>
-          {!latest ? (
+          {loading ? (
+            <p className="text-sm text-[var(--muted)]" role="status">正在读取任务记录…</p>
+          ) : error ? (
+            <div className="text-sm text-[var(--danger)]">加载失败：{error} <button type="button" className="link" onClick={load}>重试</button></div>
+          ) : !latest ? (
             <p className="text-sm text-[var(--faint)]">还没有跑过。点右上角开始第一次扫描。</p>
           ) : (
             <>
@@ -101,7 +119,7 @@ export default function JobsPage() {
 
       <div className="flex items-center gap-2 mb-3">
         <span className="inline-block h-3.5 w-1 rounded bg-slate-600" />
-        <h2 className="text-sm font-semibold tracking-wide uppercase">job_run</h2>
+        <h2 className="text-sm font-semibold tracking-wide">任务历史</h2>
       </div>
       <div className="card overflow-x-auto">
         <table className="data-table">
@@ -115,9 +133,11 @@ export default function JobsPage() {
             </tr>
           </thead>
           <tbody>
-            {jobs.length === 0 && (
+            {!loading && !error && jobs.length === 0 && (
               <tr><td colSpan={5} className="text-center text-[var(--faint)] py-6">暂无记录</td></tr>
             )}
+            {loading && <tr><td colSpan={5} className="text-center text-[var(--muted)] py-6">加载中…</td></tr>}
+            {error && <tr><td colSpan={5} className="text-center text-[var(--danger)] py-6">加载失败，请重试</td></tr>}
             {jobs.map((j) => (
               <tr key={j.id}>
                 <td className="mono text-[11px]">{j.startedAt.replace('T', ' ').slice(0, 19)}</td>

@@ -22,9 +22,9 @@ export default function SourcesPage() {
   return (
     <main>
       <PageHeader
-        title="Source Health"
+        title="来源健康"
         subtitle={`${summary.total} 个来源 · 单来源失败不阻塞整批 · 失败来源下次扫描自动重试`}
-        actions={<RunJobButton label="重试扫描" />}
+        actions={<div className="flex gap-2"><Link href="/watchlist" className="btn">管理来源</Link><RunJobButton label="重试扫描" /></div>}
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -68,7 +68,7 @@ export default function SourcesPage() {
         </table>
       </div>
       <p className="text-[11px] text-[var(--faint)] mt-3">
-        管理增删请来 <Link href="/watchlist" className="link">Watchlist</Link>。任务记录见 <Link href="/jobs" className="link">Jobs</Link>。
+        这里查看全部内置源和自定义源的运行健康；增删与暂停请到 <Link href="/watchlist" className="link">关注来源</Link>。任务记录见 <Link href="/jobs" className="link">任务记录</Link>。
       </p>
     </main>
   );
