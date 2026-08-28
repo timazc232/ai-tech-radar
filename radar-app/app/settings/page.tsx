@@ -77,7 +77,7 @@ export default function SettingsPage() {
 
   return (
     <main>
-      <h1 className="text-xl font-bold mb-6">Settings</h1>
+      <h1 className="text-xl font-bold mb-6">设置</h1>
 
       {!data ? (
         <p className="text-[var(--muted)]">加载中…</p>
@@ -108,7 +108,7 @@ export default function SettingsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <label className="text-sm">
-                <span className="text-[var(--muted)] text-xs">Provider</span>
+                <span className="text-[var(--muted)] text-xs">服务商</span>
                 <select
                   value={provider}
                   onChange={(e) => setProvider(e.target.value)}
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                 />
               </label>
               <label className="text-sm">
-                <span className="text-[var(--muted)] text-xs">Strong Model（Card 分析）</span>
+                <span className="text-[var(--muted)] text-xs">强模型（卡片分析）</span>
                 <input
                   value={strongModel}
                   onChange={(e) => setStrongModel(e.target.value)}
@@ -139,7 +139,7 @@ export default function SettingsPage() {
                 />
               </label>
               <label className="text-sm">
-                <span className="text-[var(--muted)] text-xs">Cheap Model（预筛）</span>
+                <span className="text-[var(--muted)] text-xs">轻量模型（预筛）</span>
                 <input
                   value={cheapModel}
                   onChange={(e) => setCheapModel(e.target.value)}

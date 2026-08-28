@@ -18,10 +18,10 @@ interface Mem {
 }
 
 const TABS: Array<[Tab, string]> = [
-  ['interest', 'Interest 兴趣'],
-  ['entity', 'Entity 实体'],
-  ['research', 'Research 研究'],
-  ['feedback', 'Feedback 反馈'],
+  ['interest', '兴趣'],
+  ['entity', '实体'],
+  ['research', '研究'],
+  ['feedback', '反馈'],
 ];
 
 export default function MemoryPage() {
@@ -88,11 +88,11 @@ export default function MemoryPage() {
   return (
     <main>
       <PageHeader
-        title="Memory"
+        title="记忆"
         subtitle="系统记住的偏好与反馈 · 可见 / 可编辑 / 可删除。删除后立即停止参与排序。"
         actions={
           <button type="button" className="btn" onClick={toggleLearning}>
-            {paused ? '恢复学习' : 'Pause learning'}
+            {paused ? '恢复学习' : '暂停学习'}
           </button>
         }
       />
@@ -120,7 +120,7 @@ export default function MemoryPage() {
             value={researchName}
             onChange={(e) => setResearchName(e.target.value)}
           />
-          <button type="button" className="btn btn-primary shrink-0" onClick={addResearch}>添加 Research</button>
+          <button type="button" className="btn btn-primary shrink-0" onClick={addResearch}>添加研究主题</button>
         </div>
       )}
 
@@ -163,7 +163,7 @@ export default function MemoryPage() {
                         <span className="mono text-xs">{weight.toFixed(2)}</span>
                       </span>
                     )}
-                    <div className="text-[11px] text-[var(--faint)] mt-0.5">{m.status}</div>
+                    <div className="text-[11px] text-[var(--faint)] mt-0.5">{m.status === 'active' ? '生效中' : m.status === 'paused' ? '已暂停' : m.status}</div>
                   </td>
                   <td className="mono text-[11px] text-[var(--muted)]">{m.updatedAt.slice(0, 10)}</td>
                   <td className="space-x-1 whitespace-nowrap">
@@ -172,7 +172,7 @@ export default function MemoryPage() {
                     ) : (
                       <button type="button" className="btn !py-1 !px-2" onClick={() => setStatus(m.id, 'active')}>恢复</button>
                     )}
-                    <button type="button" className="btn !py-1 !px-2" onClick={() => forget(m.id)}>Forget</button>
+                    <button type="button" className="btn !py-1 !px-2" onClick={() => forget(m.id)}>删除</button>
                   </td>
                 </tr>
               );

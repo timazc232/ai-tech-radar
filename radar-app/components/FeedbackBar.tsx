@@ -34,24 +34,32 @@ export function FeedbackBar({ eventId, compact = false }: { eventId: string; com
   return (
     <div className={`flex items-center gap-2 ${compact ? '' : 'mt-1'} relative flex-wrap`}>
       <FeedbackBtn active={acted === 'useful'} tone="green" onClick={() => sendFeedback('useful')} icon="up" label="有用" />
-      <FeedbackBtn active={acted === 'irrelevant'} tone="red" onClick={() => setReasonOpen((v) => !v)} icon="down" label="不相关" />
+      <FeedbackBtn
+        active={acted === 'irrelevant'}
+        tone="red"
+        onClick={() => setReasonOpen((v) => !v)}
+        icon="down"
+        label="不相关"
+        expanded={reasonOpen}
+      />
       <FeedbackBtn active={acted === 'save'} tone="blue" onClick={() => sendFeedback('save')} icon="star" label="收藏" />
       <FeedbackBtn active={acted === 'later'} tone="slate" onClick={() => sendFeedback('later')} icon="clock" label="稍后" />
       {reasonOpen && (
-        <div className="absolute top-9 left-0 sm:left-[88px] card-elevated p-1.5 shadow-2xl z-20 flex flex-col gap-0.5 min-w-[140px]">
+        <div className="absolute top-12 left-0 sm:left-[88px] card-elevated p-1.5 shadow-2xl z-20 flex flex-col gap-0.5 min-w-[140px]" role="menu" aria-label="不相关原因">
           {REASONS.map((r) => (
             <button
               key={r}
               type="button"
+              role="menuitem"
               onClick={() => sendFeedback('irrelevant', r)}
-              className="text-xs text-left px-2.5 py-1.5 hover:bg-[var(--bg-panel)] rounded text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+              className="text-xs text-left px-2.5 py-2 hover:bg-[var(--bg-panel)] rounded text-[var(--muted)] hover:text-[var(--text)] transition-colors touch-target"
             >
               {r}
             </button>
           ))}
         </div>
       )}
-      {toast && <span className="text-xs text-[var(--radar)] ml-1 mono">✓ {toast}</span>}
+      {toast && <span className="text-xs text-[var(--radar)] ml-1 mono" role="status">{toast}</span>}
     </div>
   );
 }
@@ -68,15 +76,18 @@ const TONES: Record<string, string> = {
 };
 
 function FeedbackBtn({
-  active, tone, onClick, icon, label,
-}: { active: boolean; tone: string; onClick: () => void; icon: string; label: string }) {
+  active, tone, onClick, icon, label, expanded,
+}: { active: boolean; tone: string; onClick: () => void; icon: string; label: string; expanded?: boolean }) {
   const hover = TONES[tone] ?? '';
   const activeCls = active ? TONES[`active${tone[0].toUpperCase()}${tone.slice(1)}`] : '';
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`btn !py-1 !px-2 ${active ? activeCls : hover}`}
+      aria-label={label}
+      aria-pressed={active}
+      aria-expanded={expanded}
+      className={`btn touch-target !py-2 !px-2.5 ${active ? activeCls : hover}`}
     >
       <FeedbackIcon name={icon} />
       <span className="hidden sm:inline">{label}</span>
@@ -86,8 +97,8 @@ function FeedbackBtn({
 
 function FeedbackIcon({ name }: { name: string }) {
   const cls = 'h-3.5 w-3.5';
-  if (name === 'up') return <svg viewBox="0 0 24 24" className={cls} fill="currentColor"><path d="M12 4 5 12h4v8h6v-8h4z" /></svg>;
-  if (name === 'down') return <svg viewBox="0 0 24 24" className={cls} fill="currentColor"><path d="M12 20l7-8h-4V4h-6v8H5z" /></svg>;
-  if (name === 'star') return <svg viewBox="0 0 24 24" className={cls} fill="currentColor"><path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8z" /></svg>;
-  return <svg viewBox="0 0 24 24" className={cls} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>;
+  if (name === 'up') return <svg viewBox="0 0 24 24" className={cls} fill="currentColor" aria-hidden="true"><path d="M12 4 5 12h4v8h6v-8h4z" /></svg>;
+  if (name === 'down') return <svg viewBox="0 0 24 24" className={cls} fill="currentColor" aria-hidden="true"><path d="M12 20l7-8h-4V4h-6v8H5z" /></svg>;
+  if (name === 'star') return <svg viewBox="0 0 24 24" className={cls} fill="currentColor" aria-hidden="true"><path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8z" /></svg>;
+  return <svg viewBox="0 0 24 24" className={cls} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>;
 }

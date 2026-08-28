@@ -2,9 +2,11 @@ import { getBriefForDate, listBriefDates, prepareDisplayEvents } from '@/modules
 import { dataWindow, shiftBeijingDate, windowLabel, type Freshness } from '@/lib/time';
 import { EventCard } from '@/components/EventCard';
 import { RunJobButton } from '@/components/RunJobButton';
+import { BriefDensityProvider, BriefDensityToggle } from '@/components/BriefDensity';
 import { db } from '@/db/client';
 import { source } from '@/db/schema';
 import { effectiveGitHubToken } from '@/lib/settings';
+import { FRESHNESS_LABEL, TIER_LABEL } from '@/lib/ui';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -12,9 +14,9 @@ export const maxDuration = 180;
 
 function freshnessLabel(f: Freshness): { text: string; cls: string } {
   switch (f) {
-    case 'fresh': return { text: 'fresh', cls: 'badge-fresh' };
-    case 'stale': return { text: 'stale', cls: 'badge-stale' };
-    case 'pending': return { text: 'pending', cls: 'badge-pending' };
+    case 'fresh': return { text: FRESHNESS_LABEL.fresh, cls: 'badge-fresh' };
+    case 'stale': return { text: FRESHNESS_LABEL.stale, cls: 'badge-stale' };
+    case 'pending': return { text: FRESHNESS_LABEL.pending, cls: 'badge-pending' };
   }
 }
 
@@ -37,10 +39,10 @@ export default async function TodayPage({
     <header className="mb-7">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="serif text-2xl font-semibold tracking-tight">Today</h1>
+          <h1 className="serif text-2xl font-semibold tracking-tight">今日简报</h1>
           <p className="text-xs text-[var(--muted)] mt-1">官方公告 + 仓库发布 · 默认看近 7 天</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={`badge ${fl.cls}`}>
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-current" />
             {fl.text}
@@ -92,7 +94,7 @@ export default async function TodayPage({
           )}
           {!githubOk && (
             <p className="text-xs text-[var(--faint)] mt-4">
-              GitHub 采集需要 Token，请先到 <Link href="/settings" className="link">Settings</Link> 填写。
+              GitHub 采集需要 Token，请先到 <Link href="/settings" className="link">设置</Link> 填写。
             </p>
           )}
         </div>
@@ -106,48 +108,55 @@ export default async function TodayPage({
   const worthItems = items.filter((i) => i.total >= 65 && i.total < 80);
 
   return (
-    <main>
-      {header}
+    <BriefDensityProvider>
+      <main>
+        {header}
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
-        <Metric label="扫描" value={metrics.scanned} />
-        <Metric label="候选" value={metrics.candidates} />
-        <Metric label="入选" value={metrics.recommended} accent />
-        <Metric label="过滤" value={metrics.filtered} />
-        <AnomalyMetric count={metrics.sourceAnomalies} />
-      </div>
-
-      {isYesterday && items.length === 0 && (
-        <div className="card p-5 mb-6 text-sm text-[var(--muted)] text-center">
-          这一窗没有达到阈值的事件。可以
-          <span className="inline-block mx-1 align-middle"><RunJobButton lookbackDays={7} label="再扫近 7 天" /></span>
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-5">
+          <p className="text-xs text-[var(--muted)]">精简模式只保留标题与一条要点，完整模式展开说明与反馈。</p>
+          <BriefDensityToggle />
         </div>
-      )}
 
-      <Section title="Must Read" count={mustItems.length} tier="must">
-        {mustItems.length === 0 ? (
-          <EmptyHint text="本日无 Must Read 事件（total ≥ 80）" />
-        ) : (
-          <div className="space-y-3">
-            {mustItems.map((i) => (
-              <EventCard key={i.id} event={i} tier="must" />
-            ))}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
+          <Metric label="扫描" value={metrics.scanned} />
+          <Metric label="候选" value={metrics.candidates} />
+          <Metric label="入选" value={metrics.recommended} accent />
+          <Metric label="过滤" value={metrics.filtered} />
+          <AnomalyMetric count={metrics.sourceAnomalies} />
+        </div>
+
+        {isYesterday && items.length === 0 && (
+          <div className="card p-5 mb-6 text-sm text-[var(--muted)] text-center">
+            这一窗没有达到阈值的事件。可以
+            <span className="inline-block mx-1 align-middle"><RunJobButton lookbackDays={7} label="再扫近 7 天" /></span>
           </div>
         )}
-      </Section>
 
-      <Section title="Worth Watching" count={worthItems.length} tier="worth">
-        {worthItems.length === 0 ? (
-          <EmptyHint text="本日无 Worth Watching 事件（65 ≤ total &lt; 80）" />
-        ) : (
-          <div className="space-y-3">
-            {worthItems.map((i) => (
-              <EventCard key={i.id} event={i} tier="worth" />
-            ))}
-          </div>
-        )}
-      </Section>
-    </main>
+        <Section title={TIER_LABEL.must} count={mustItems.length}>
+          {mustItems.length === 0 ? (
+            <EmptyHint text="本日无必读事件（综合分 ≥ 80）" />
+          ) : (
+            <div className="space-y-3">
+              {mustItems.map((i) => (
+                <EventCard key={i.id} event={i} tier="must" />
+              ))}
+            </div>
+          )}
+        </Section>
+
+        <Section title={TIER_LABEL.worth} count={worthItems.length}>
+          {worthItems.length === 0 ? (
+            <EmptyHint text="本日无值得关注事件（65 ≤ 综合分 < 80）" />
+          ) : (
+            <div className="space-y-3">
+              {worthItems.map((i) => (
+                <EventCard key={i.id} event={i} tier="worth" />
+              ))}
+            </div>
+          )}
+        </Section>
+      </main>
+    </BriefDensityProvider>
   );
 }
 
@@ -167,7 +176,7 @@ function AnomalyMetric({ count }: { count: number }) {
         href="/sources"
         className="card card-hover block p-3.5 text-center"
         style={{ borderColor: 'rgba(251, 191, 36, 0.35)' }}
-        title="查看 Source Health"
+        title="查看来源健康"
       >
         <div className="text-2xl font-bold mono text-amber-400">{count}</div>
         <div className="text-[11px] text-[var(--muted)] mt-0.5">来源异常</div>
@@ -182,7 +191,7 @@ function AnomalyMetric({ count }: { count: number }) {
   );
 }
 
-function Section({ title, count, children }: { title: string; count: number; tier: 'must' | 'worth'; children: React.ReactNode }) {
+function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
     <section className="mb-8">
       <div className="flex items-baseline gap-2 mb-3 pb-2 border-b border-[var(--border)]">
@@ -196,6 +205,6 @@ function Section({ title, count, children }: { title: string; count: number; tie
 
 function EmptyHint({ text }: { text: string }) {
   return (
-    <div className="card p-5 text-sm text-[var(--faint)] text-center" dangerouslySetInnerHTML={{ __html: text }} />
+    <div className="card p-5 text-sm text-[var(--faint)] text-center">{text}</div>
   );
 }
