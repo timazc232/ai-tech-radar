@@ -1,3 +1,6 @@
+[![CI](https://github.com/timazc232/ai-tech-radar/actions/workflows/ci.yml/badge.svg)](https://github.com/timazc232/ai-tech-radar/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 # AI Tech Radar
 
 个人技术情报代理。每天把 GitHub Release、官方 RSS 和官网公告压缩成一份可读的简报：精炼标题、主体/项目、更新要点，点进详情再看完整说明。
