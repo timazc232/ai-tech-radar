@@ -8,16 +8,17 @@ import { Bilingual } from '@/components/Bilingual';
 import { getEventZh, translateEvents } from '@/modules/llm/translate';
 import { getEventBriefing, organizeEvents } from '@/modules/briefing/service';
 import { ACTOR_KIND_LABEL, PROJECT_KIND_LABEL } from '@/modules/briefing/types';
+import { ACTION_LABEL, DIM_LABEL, TYPE_LABEL as SHARED_TYPE_LABEL, TIER_LABEL } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
 const DIMS = [
-  { key: 'relevance', label: 'relevance' },
-  { key: 'impact', label: 'impact' },
-  { key: 'novelty', label: 'novelty' },
-  { key: 'credibility', label: 'credibility' },
-  { key: 'urgency', label: 'urgency' },
+  { key: 'relevance', label: DIM_LABEL.relevance },
+  { key: 'impact', label: DIM_LABEL.impact },
+  { key: 'novelty', label: DIM_LABEL.novelty },
+  { key: 'credibility', label: DIM_LABEL.credibility },
+  { key: 'urgency', label: DIM_LABEL.urgency },
 ] as const;
 
 function barColor(v: number): string {
@@ -26,10 +27,7 @@ function barColor(v: number): string {
   return '#334155';
 }
 
-const TYPE_LABEL: Record<string, string> = {
-  release: '发布', breaking_change: '破坏性变更', pricing_change: '定价',
-  research: '研究', security_advisory: '安全', announcement: '公告', docs_change: '文档',
-};
+const TYPE_LABEL = SHARED_TYPE_LABEL;
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,17 +53,17 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const total = latestScore ? Math.round(latestScore.total) : 0;
   const tier = total >= 80 ? 'must' : total >= 65 ? 'worth' : 'filtered';
-  const tierLabel = total >= 80 ? 'MUST READ' : total >= 65 ? 'WORTH WATCHING' : 'FILTERED';
+  const tierLabel = total >= 80 ? TIER_LABEL.must : total >= 65 ? TIER_LABEL.worth : '已过滤';
 
   return (
     <main>
-      <Link href="/" className="link text-sm inline-flex items-center gap-1">← 返回 Today</Link>
+      <Link href="/" className="link text-sm inline-flex items-center gap-1">← 返回今日简报</Link>
 
       <header className="mt-3 mb-6">
         <div className="flex items-center gap-2 text-xs text-[var(--muted)] mb-2 flex-wrap">
           <span className="badge badge-pending !py-0 !px-1.5 !text-[10px]">{TYPE_LABEL[ev.type] ?? ev.type}</span>
           <span className="mono">{toBeijingDate(ev.occurredAt)}</span>
-          {ev.backfill ? <span className="badge badge-stale !py-0 !px-1.5 !text-[10px]">backfill</span> : null}
+          {ev.backfill ? <span className="badge badge-stale !py-0 !px-1.5 !text-[10px]">回填</span> : null}
         </div>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -121,7 +119,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <section className="card p-5 mb-5">
           <div className="flex items-center gap-2 mb-3">
             <span className="inline-block h-3.5 w-1 rounded bg-[var(--radar)]" />
-            <h2 className="font-semibold">Intelligence Card</h2>
+            <h2 className="font-semibold">情报卡片</h2>
           </div>
           <dl className="space-y-3 text-sm">
             <CardField label="发生了什么" value={card.whatHappened} zh={zh?.whatZh} />
@@ -131,7 +129,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </dl>
           <div className="mt-4 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)]">
             <div className="text-[11px] text-[var(--faint)] uppercase tracking-wider mb-1">建议行动</div>
-            <div className="mono text-sm text-[var(--accent)]">{card.recommendedAction}</div>
+            <div className="text-sm text-[var(--accent)]">{ACTION_LABEL[card.recommendedAction] ?? card.recommendedAction}</div>
           </div>
         </section>
       )}

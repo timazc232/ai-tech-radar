@@ -4,16 +4,38 @@ import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { RunJobButton } from '@/components/RunJobButton';
+import {
+  ORIGIN_LABEL,
+  sourceOrigin,
+  sourceRunKind,
+  sourceRunLabel,
+  sourceWatchLabel,
+} from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
 
 export default function SourcesPage() {
   const sources = db().select().from(source).all().map((s) => {
     const ent = s.entityId ? db().select().from(entity).where(eq(entity.id, s.entityId)).get() : null;
-    return { ...s, entityName: ent?.name ?? s.id };
+    const origin = sourceOrigin(s.id);
+    const run = sourceRunKind({
+      status: s.status ?? 'active',
+      lastFetchedAt: s.lastFetchedAt,
+      lastError: s.lastError,
+    });
+    return {
+      ...s,
+      entityName: ent?.name ?? s.id,
+      origin,
+      run,
+      watchLabel: sourceWatchLabel(s.status ?? 'active'),
+      runLabel: sourceRunLabel(run),
+    };
   });
   const summary = {
     total: sources.length,
+    builtin: sources.filter((s) => s.origin === 'builtin').length,
+    custom: sources.filter((s) => s.origin === 'custom').length,
     active: sources.filter((s) => s.status === 'active').length,
     error: sources.filter((s) => s.status === 'error').length,
     paused: sources.filter((s) => s.status === 'paused').length,
@@ -22,16 +44,25 @@ export default function SourcesPage() {
   return (
     <main>
       <PageHeader
-        title="Source Health"
-        subtitle={`${summary.total} 个来源 · 单来源失败不阻塞整批 · 失败来源下次扫描自动重试`}
+        title="来源健康"
+        subtitle="查看采集是否成功。增删与暂停请来「关注」页；本页只反映运行状态。"
         actions={<RunJobButton label="重试扫描" />}
       />
 
+      <p className="text-sm text-[var(--muted)] mb-4 leading-relaxed">
+        <strong className="text-[var(--text)]">内置源</strong>来自预设清单，
+        <strong className="text-[var(--text)]">自定义源</strong>是你在关注列表里添加的。
+        「关注中 / 已暂停」是订阅意图，「已采集 / 失败」是最近一次扫描结果。
+        管理入口：<Link href="/watchlist" className="link">关注列表</Link>
+        {' · '}
+        <Link href="/jobs" className="link">任务记录</Link>。
+      </p>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Stat n={summary.total} l="全部" />
-        <Stat n={summary.active} l="健康" ok />
-        <Stat n={summary.paused} l="暂停" />
-        <Stat n={summary.error} l="失败" err={summary.error > 0} />
+        <Stat n={summary.builtin} l="内置" />
+        <Stat n={summary.custom} l="自定义" />
+        <Stat n={summary.error} l="采集失败" err={summary.error > 0} />
       </div>
 
       <div className="card overflow-x-auto">
@@ -39,8 +70,9 @@ export default function SourcesPage() {
           <thead>
             <tr>
               <th>来源</th>
-              <th>类型</th>
-              <th>状态</th>
+              <th>类别</th>
+              <th>关注</th>
+              <th>运行</th>
               <th>上次成功</th>
               <th>错误</th>
             </tr>
@@ -53,11 +85,19 @@ export default function SourcesPage() {
                   <a href={s.url} className="link text-[11px] mono" target="_blank" rel="noreferrer">
                     {s.url.replace(/^https?:\/\//, '').slice(0, 56)}
                   </a>
+                  <div className="text-[11px] text-[var(--faint)] mt-0.5">{s.type}</div>
                 </td>
-                <td><span className="badge badge-pending">{s.type}</span></td>
                 <td>
-                  <span className={`status-dot text-xs ${s.status === 'error' ? 'text-[var(--danger)]' : s.status === 'paused' ? 'text-[var(--muted)]' : 'text-[var(--success)]'}`}>
-                    {s.status}
+                  <span className="badge badge-pending">{ORIGIN_LABEL[s.origin]}</span>
+                </td>
+                <td>
+                  <span className={`status-dot text-xs ${s.status === 'paused' ? 'text-[var(--muted)]' : 'text-[var(--success)]'}`}>
+                    {s.watchLabel}
+                  </span>
+                </td>
+                <td>
+                  <span className={`status-dot text-xs ${s.run === 'error' ? 'text-[var(--danger)]' : s.run === 'ok' ? 'text-[var(--success)]' : 'text-[var(--muted)]'}`}>
+                    {s.runLabel}
                   </span>
                 </td>
                 <td className="mono text-[11px] text-[var(--muted)]">{s.lastFetchedAt ? s.lastFetchedAt.slice(0, 16).replace('T', ' ') : '—'}</td>
@@ -67,9 +107,6 @@ export default function SourcesPage() {
           </tbody>
         </table>
       </div>
-      <p className="text-[11px] text-[var(--faint)] mt-3">
-        管理增删请来 <Link href="/watchlist" className="link">Watchlist</Link>。任务记录见 <Link href="/jobs" className="link">Jobs</Link>。
-      </p>
     </main>
   );
 }

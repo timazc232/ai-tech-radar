@@ -10,14 +10,14 @@ export default function RadarPage() {
   return (
     <main>
       <PageHeader
-        title="Radar"
-        subtitle="Topic 近 7 / 30 天事件量。升温需近 7 天 ≥3 条且不少于上周 1.5 倍，均可点开核对。"
+        title="雷达"
+        subtitle="各主题近 7 / 30 天事件量。升温需近 7 天 ≥3 条且不少于上周 1.5 倍，均可点开核对。"
       />
       <div className="card overflow-x-auto">
         <table className="data-table">
           <thead>
             <tr>
-              <th>Topic</th>
+              <th>主题</th>
               <th>趋势</th>
               <th>近 7 天</th>
               <th>上周</th>

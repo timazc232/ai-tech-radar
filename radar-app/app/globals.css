@@ -263,3 +263,40 @@ html, body {
 .tab.active { color: var(--text); background: var(--bg-panel); border-color: var(--border); }
 
 * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -40px;
+  z-index: 50;
+  background: var(--text);
+  color: var(--bg);
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.25rem;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+.nav-item:focus-visible,
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 400px) {
+  .app-main { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .serif.text-2xl { font-size: 1.35rem; }
+  .data-table th, .data-table td { padding-left: 0.45rem; padding-right: 0.45rem; }
+}
