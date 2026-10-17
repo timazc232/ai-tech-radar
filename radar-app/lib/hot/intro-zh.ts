@@ -111,11 +111,13 @@ async function callLlm(prompt: string): Promise<string | null> {
   if (!ep) return null
   try {
     const isAnthropic = cfg.llm.provider === 'anthropic'
+    // Flash/Pro use reasoning_tokens; keep headroom so content is not truncated empty.
+    const maxTokens = isAnthropic ? 120 : 512
     const body = isAnthropic
-      ? { model: ep.model, max_tokens: 120, messages: [{ role: 'user', content: prompt }] }
+      ? { model: ep.model, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }
       : {
           model: ep.model,
-          max_tokens: 120,
+          max_tokens: maxTokens,
           temperature: 0.2,
           messages: [{ role: 'user', content: prompt }],
         }
