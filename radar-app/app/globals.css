@@ -300,3 +300,212 @@ summary:focus-visible,
   .serif.text-2xl { font-size: 1.35rem; }
   .data-table th, .data-table td { padding-left: 0.45rem; padding-right: 0.45rem; }
 }
+
+
+
+/* ===== Hot10 home (DailyHot-style cards) ===== */
+.hot-shell {
+  min-height: 100vh;
+  background: #0b0f19;
+  color: #e5eefb;
+}
+.hot-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 20px 16px 56px;
+}
+.hot-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.hot-brand {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  color: #fff;
+}
+.hot-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  color: #94a3b8;
+  font-size: 13px;
+}
+.hot-meta a {
+  color: #e5eefb;
+  text-decoration: none;
+}
+.hot-meta a:hover { color: #38bdf8; }
+.hot-secondary { color: #64748b !important; }
+.hot-updated {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #1f293d;
+  background: #131c2e;
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: #94a3b8;
+}
+.hot-refresh {
+  border: 1px solid #1f293d;
+  background: #131c2e;
+  color: #e5eefb;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.hot-refresh:hover { border-color: #38bdf8; color: #38bdf8; }
+.hot-refresh:disabled { opacity: 0.6; cursor: wait; }
+.hot-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 14px;
+  scrollbar-width: none;
+}
+.hot-pills::-webkit-scrollbar { display: none; }
+.hot-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #1f293d;
+  background: #131c2e;
+  color: #cbd5e1;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.hot-pill.on {
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #0b0f19;
+  font-weight: 650;
+}
+.hot-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.hot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.hot-grid.single { grid-template-columns: 1fr; max-width: 720px; }
+.hot-card {
+  background: #131c2e;
+  border: 1px solid #1f293d;
+  border-radius: 14px;
+  padding: 14px 14px 10px;
+  min-width: 0;
+}
+.hot-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.hot-card-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.hot-card-head p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+.hot-tag {
+  font-size: 11px;
+  border: 1px solid #1f293d;
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.hot-note, .hot-stale {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.hot-stale { color: #fb923c; }
+.hot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hot-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #1a2438;
+  text-decoration: none;
+  color: inherit;
+}
+.hot-list li:first-child .hot-row { border-top: 0; }
+.hot-rank {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 13px;
+  padding-top: 2px;
+}
+.hot-rank.top { color: #f97316; }
+.hot-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 560;
+  line-height: 1.35;
+  color: #e5eefb;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hot-row:hover .hot-title { color: #38bdf8; }
+.hot-heat {
+  color: #64748b;
+  font-size: 11px;
+  white-space: nowrap;
+  text-align: right;
+  max-width: 7.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hot-empty {
+  padding: 12px 0 8px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+.hot-about {
+  color: #e5eefb;
+}
+.hot-about h1 { font-size: 22px; margin: 8px 0 10px; color: #fff; }
+.hot-about p, .hot-about li { color: #94a3b8; font-size: 14px; line-height: 1.55; }
+.hot-about ul { padding-left: 18px; }
+@media (max-width: 960px) {
+  .hot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .hot-grid { grid-template-columns: 1fr; }
+  .hot-page { padding: 14px 12px 40px; }
+}

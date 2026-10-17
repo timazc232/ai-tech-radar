@@ -29,3 +29,7 @@ logs/
 coverage
 *.tsbuildinfo
 next-env.d.ts
+
+# hot board cache
+data/hot/
+data/hot/

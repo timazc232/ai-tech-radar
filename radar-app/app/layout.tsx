@@ -1,18 +1,15 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import { AppShell } from '@/components/AppShell';
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AI Tech Radar',
-  description: '个人 AI 技术情报代理 — 每日简报',
-};
+  title: 'Hot10',
+  description: '多源热榜：GitHub、HN、Reddit、V2EX、X、微博、知乎、掘金',
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
-      <body>
-        <AppShell>{children}</AppShell>
-      </body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }

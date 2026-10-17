@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { NAV_ITEMS, navMenuLabel, searchQueryHint } from '@/lib/ui';
 
 function isActive(pathname: string, href: string): boolean {
-  if (href === '/') return pathname === '/' || pathname.startsWith('/events');
+  if (href === '/intel') return pathname === '/intel' || pathname.startsWith('/events');
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -106,7 +106,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="app-shell lg:pl-[216px]">
       <a href="#main-content" className="skip-link">跳到正文</a>
       <header className="lg:hidden sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg)]/90 backdrop-blur px-3 py-2 flex items-center justify-between gap-2">
-        <Link href="/" className="serif font-semibold tracking-tight text-sm">Radar</Link>
+        <Link href="/intel" className="serif font-semibold tracking-tight text-sm">Radar</Link>
         <button
           ref={menuBtnRef}
           type="button"

@@ -13,7 +13,7 @@ export type JobView = 'loading' | 'error' | 'empty' | 'running' | 'failed' | 'su
 export type SourceOrigin = 'builtin' | 'custom';
 
 export const NAV_ITEMS: Array<{ href: string; label: string }> = [
-  { href: '/', label: '今日' },
+  { href: '/intel', label: '今日' },
   { href: '/watchlist', label: '关注' },
   { href: '/radar', label: '雷达' },
   { href: '/memory', label: '记忆' },
