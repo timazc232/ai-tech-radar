@@ -363,6 +363,17 @@ summary:focus-visible,
 }
 .hot-refresh:hover { border-color: #38bdf8; color: #38bdf8; }
 .hot-refresh:disabled { opacity: 0.6; cursor: wait; }
+.hot-refresh-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hot-prefetch-note {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
 .hot-pills {
   display: flex;
   gap: 8px;

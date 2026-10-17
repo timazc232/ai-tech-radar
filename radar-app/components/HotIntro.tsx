@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 export type IntroPayload = {
@@ -50,6 +50,7 @@ export function HotIntroHover({
   onOpenDrawer?: () => void
 }) {
   const wrapRef = useRef<HTMLSpanElement>(null)
+  const popRef = useRef<HTMLDivElement>(null)
   const [show, setShow] = useState(false)
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -72,8 +73,16 @@ export function HotIntroHover({
     const width = 300
     let left = r.left
     if (left + width > window.innerWidth - 12) left = Math.max(12, window.innerWidth - width - 12)
-    let top = r.bottom + 8
-    if (top + 140 > window.innerHeight) top = Math.max(12, r.top - 148)
+    const gap = 8
+    const popH = popRef.current?.offsetHeight || 72
+    const spaceBelow = window.innerHeight - r.bottom - gap
+    const spaceAbove = r.top - gap
+    let top: number
+    if (spaceBelow >= popH || spaceBelow >= spaceAbove) {
+      top = r.bottom + gap
+    } else {
+      top = Math.max(12, r.top - popH - gap)
+    }
     setPos({ top, left })
   }, [])
 
@@ -124,11 +133,18 @@ export function HotIntroHover({
     }
   }, [show, place])
 
+  // Re-measure after mount / content change so flip uses real popover height (not a fixed ~148px).
+  useLayoutEffect(() => {
+    if (!show) return
+    place()
+  }, [show, data, loading, place])
+
   const line = zhLine(data, title)
   const portal =
     show && pos && typeof document !== 'undefined'
       ? createPortal(
           <div
+            ref={popRef}
             className="hot-intro-pop"
             style={{ top: pos.top, left: pos.left }}
             onMouseEnter={() => {

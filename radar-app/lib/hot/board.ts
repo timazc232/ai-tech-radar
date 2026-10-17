@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { SOURCES, fetchSource, type HotItem, type HotKind } from './sources'
+import { scheduleIntroPrefetch } from './prefetch-intro'
 
 const TTL = 30 * 60 * 1000
 const FILE = path.join(process.cwd(), 'data', 'hot', 'cache.json')
@@ -60,6 +61,7 @@ async function load(force: boolean): Promise<CacheFile> {
   const cache = await readCache()
   const now = Date.now()
   const next: CacheFile = { ...cache }
+  let didFetch = false
 
   await Promise.all(
     SOURCES.map(async (meta) => {
@@ -69,6 +71,7 @@ async function load(force: boolean): Promise<CacheFile> {
         next[meta.id] = { ...emptySnap(meta), ...prev, name: meta.name, kind: meta.kind, ok: true, error: null }
         return
       }
+      didFetch = true
       try {
         const items = await fetchSource(meta.id)
         next[meta.id] = {
@@ -107,6 +110,8 @@ async function load(force: boolean): Promise<CacheFile> {
   )
 
   await writeCache(next)
+  // List response must not wait on AI; only after a real source refresh.
+  if (didFetch) scheduleIntroPrefetch(next)
   return next
 }
 
