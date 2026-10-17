@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { HotRefresh } from '@/components/HotRefresh'
+import { GithubIntroButton } from '@/components/GithubIntro'
 import { SOURCES } from '@/lib/hot/sources'
 import { boardUpdatedAt, formatHm, getBoard, type HotSnap } from '@/lib/hot/board'
 
@@ -19,6 +20,7 @@ const DOT: Record<string, string> = {
 
 function Rows({ snap }: { snap: HotSnap }) {
   const items = snap.items.slice(0, 10)
+  const isGithub = snap.id === 'github'
   if (!items.length) {
     const when = formatHm(snap.lastOkAt)
     return (
@@ -32,11 +34,14 @@ function Rows({ snap }: { snap: HotSnap }) {
     <ol className="hot-list">
       {items.map((it) => (
         <li key={`${it.rank}-${it.url}`}>
-          <a href={it.url} target="_blank" rel="noreferrer" className="hot-row">
+          <div className="hot-row">
             <span className={it.rank <= 3 ? 'hot-rank top' : 'hot-rank'}>{it.rank}</span>
-            <span className="hot-title">{it.title}</span>
+            <a href={it.url} target="_blank" rel="noreferrer" className="hot-title">
+              {it.title}
+            </a>
+            {isGithub ? <GithubIntroButton repo={it.title} url={it.url} /> : null}
             <span className="hot-heat">{it.heat || '—'}</span>
-          </a>
+          </div>
         </li>
       ))}
     </ol>
