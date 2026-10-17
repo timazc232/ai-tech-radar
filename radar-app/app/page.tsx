@@ -34,10 +34,8 @@ function Rows({ snap }: { snap: HotSnap }) {
         <li key={`${it.rank}-${it.url}`}>
           <a href={it.url} target="_blank" rel="noreferrer" className="hot-row">
             <span className={it.rank <= 3 ? 'hot-rank top' : 'hot-rank'}>{it.rank}</span>
-            <span className="hot-main">
-              <span className="hot-title">{it.title}</span>
-              <span className="hot-heat">{it.heat || '—'}</span>
-            </span>
+            <span className="hot-title">{it.title}</span>
+            <span className="hot-heat">{it.heat || '—'}</span>
           </a>
         </li>
       ))}
@@ -91,7 +89,7 @@ export default async function HotHomePage({
             Hot10
           </Link>
           <div className="hot-meta">
-            <span>{updated ? `更新于 ${updated}` : '正在更新'} · 每 30 分钟</span>
+            <span className="hot-updated">{updated ? `更新于 ${updated}` : '正在更新'} · 每 30 分钟</span>
             <HotRefresh />
             <Link href="/about">关于</Link>
             <Link href="/intel" className="hot-secondary">

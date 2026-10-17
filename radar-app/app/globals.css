@@ -343,6 +343,15 @@ summary:focus-visible,
 }
 .hot-meta a:hover { color: #38bdf8; }
 .hot-secondary { color: #64748b !important; }
+.hot-updated {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #1f293d;
+  background: #131c2e;
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: #94a3b8;
+}
 .hot-refresh {
   border: 1px solid #1f293d;
   background: #131c2e;
@@ -444,9 +453,9 @@ summary:focus-visible,
 }
 .hot-row {
   display: grid;
-  grid-template-columns: 28px 1fr;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
   gap: 8px;
-  align-items: start;
+  align-items: center;
   padding: 8px 0;
   border-top: 1px solid #1a2438;
   text-decoration: none;
@@ -467,13 +476,20 @@ summary:focus-visible,
   font-weight: 560;
   line-height: 1.35;
   color: #e5eefb;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .hot-row:hover .hot-title { color: #38bdf8; }
 .hot-heat {
-  display: block;
-  margin-top: 2px;
   color: #64748b;
   font-size: 11px;
+  white-space: nowrap;
+  text-align: right;
+  max-width: 7.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .hot-empty {
   padding: 12px 0 8px;
