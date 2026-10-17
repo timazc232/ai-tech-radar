@@ -111,8 +111,9 @@ async function callLlm(prompt: string): Promise<string | null> {
   if (!ep) return null
   try {
     const isAnthropic = cfg.llm.provider === 'anthropic'
-    // Flash/Pro use reasoning_tokens; keep headroom so content is not truncated empty.
-    const maxTokens = isAnthropic ? 120 : 512
+    // Short intro translations: disable DeepSeek thinking so reasoning does not eat max_tokens.
+    const maxTokens = isAnthropic ? 120 : 256
+    const useDeepseek = ep.url.includes('deepseek.com')
     const body = isAnthropic
       ? { model: ep.model, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }
       : {
@@ -120,6 +121,7 @@ async function callLlm(prompt: string): Promise<string | null> {
           max_tokens: maxTokens,
           temperature: 0.2,
           messages: [{ role: 'user', content: prompt }],
+          ...(useDeepseek ? { thinking: { type: 'disabled' as const } } : {}),
         }
     const res = await fetch(ep.url, {
       method: 'POST',
