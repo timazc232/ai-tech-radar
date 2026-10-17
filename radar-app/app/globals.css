@@ -650,3 +650,63 @@ summary:focus-visible,
 @media (max-width: 640px) {
   .gh-drawer { width: 100%; }
 }
+
+/* hot intro popover */
+.hot-intro-hover {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+.hot-intro-hover > .hot-title {
+  display: block;
+}
+.hot-row-gh {
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+}
+.hot-intro-pop {
+  position: fixed;
+  z-index: 90;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  background: #131c2e;
+  border: 1px solid #1f293d;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  padding: 12px 14px 10px;
+  pointer-events: auto;
+}
+.hot-intro-pop-main {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e5eefb;
+}
+.hot-intro-pop-loading { color: #94a3b8; }
+.hot-intro-pop-orig {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #64748b;
+  word-break: break-word;
+}
+.hot-intro-pop-meta {
+  margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.hot-intro-pop-more {
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: #38bdf8;
+  font-size: 12px;
+  padding: 0;
+  cursor: pointer;
+}
+.hot-intro-pop-more:hover { text-decoration: underline; }
+@media (hover: none) {
+  .hot-intro-pop { display: none !important; }
+}

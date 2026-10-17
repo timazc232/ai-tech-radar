@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { HotRefresh } from '@/components/HotRefresh'
-import { GithubIntroButton } from '@/components/GithubIntro'
+import { GithubIntroButton, HotTitleWithIntro } from '@/components/GithubIntro'
 import { SOURCES } from '@/lib/hot/sources'
 import { boardUpdatedAt, formatHm, getBoard, type HotSnap } from '@/lib/hot/board'
 
@@ -18,9 +18,12 @@ const DOT: Record<string, string> = {
   juejin: '#38bdf8',
 }
 
+const HOVER_INTRO = new Set(['github', 'hn', 'x', 'reddit'])
+
 function Rows({ snap }: { snap: HotSnap }) {
   const items = snap.items.slice(0, 10)
   const isGithub = snap.id === 'github'
+  const useHover = HOVER_INTRO.has(snap.id)
   if (!items.length) {
     const when = formatHm(snap.lastOkAt)
     return (
@@ -34,11 +37,15 @@ function Rows({ snap }: { snap: HotSnap }) {
     <ol className="hot-list">
       {items.map((it) => (
         <li key={`${it.rank}-${it.url}`}>
-          <div className="hot-row">
+          <div className={isGithub ? 'hot-row hot-row-gh' : 'hot-row'}>
             <span className={it.rank <= 3 ? 'hot-rank top' : 'hot-rank'}>{it.rank}</span>
-            <a href={it.url} target="_blank" rel="noreferrer" className="hot-title">
-              {it.title}
-            </a>
+            {useHover ? (
+              <HotTitleWithIntro source={snap.id as 'github' | 'hn' | 'x' | 'reddit'} title={it.title} url={it.url} />
+            ) : (
+              <a href={it.url} target="_blank" rel="noreferrer" className="hot-title">
+                {it.title}
+              </a>
+            )}
             {isGithub ? <GithubIntroButton repo={it.title} url={it.url} /> : null}
             <span className="hot-heat">{it.heat || '—'}</span>
           </div>
