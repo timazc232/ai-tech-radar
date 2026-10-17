@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type Prefetch = {
   running?: boolean
@@ -11,22 +11,42 @@ type Prefetch = {
   hit?: number
 }
 
+// Refresh on page enter; skip if we just refreshed (e.g. switching source pills).
+const AUTO_MIN_GAP = 60_000
+let lastRefreshAt = 0
+
 export function HotRefresh() {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [prefetchNote, setPrefetchNote] = useState<string | null>(null)
 
+  const busyRef = useRef(false)
+
+  useEffect(() => {
+    if (Date.now() - lastRefreshAt < AUTO_MIN_GAP) return
+    void run()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function onClick() {
-    if (busy) return
+    await run()
+  }
+
+  async function run() {
+    if (busyRef.current) return
+    busyRef.current = true
+    lastRefreshAt = Date.now()
     setBusy(true)
     setPrefetchNote(null)
     try {
       await fetch('/api/hot/refresh', { method: 'POST' })
       router.refresh()
+      busyRef.current = false
       setBusy(false)
       setPrefetchNote('正在生成中文简介…')
       await waitPrefetch()
     } catch {
+      busyRef.current = false
       setBusy(false)
     } finally {
       setPrefetchNote(null)
