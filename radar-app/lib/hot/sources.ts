@@ -104,22 +104,38 @@ async function fetchHn(): Promise<HotItem[]> {
 }
 
 async function fetchReddit(): Promise<HotItem[]> {
-  const raw = await getText('https://www.reddit.com/r/popular/hot.json?limit=10&raw_json=1', {
-    Accept: 'application/json',
-  })
-  if (raw.trim().startsWith('<')) throw new Error('Reddit 返回了网页而不是 JSON')
-  const json = JSON.parse(raw) as { data?: { children?: Array<{ data?: { title?: string; score?: number; permalink?: string; url?: string } }> } }
-  const children = json?.data?.children || []
-  return top(
-    children.map((c) => {
-      const d = c.data || {}
-      return {
-        title: d.title,
-        heat: typeof d.score === 'number' ? `${d.score} 分` : null,
-        url: d.permalink ? `https://www.reddit.com${d.permalink}` : d.url,
+  const urls = [
+    'https://www.reddit.com/r/popular/hot.json?limit=10&raw_json=1',
+    'https://old.reddit.com/r/popular/hot.json?limit=10&raw_json=1',
+  ]
+  let lastErr: Error | null = null
+  for (const endpoint of urls) {
+    try {
+      const raw = await getText(endpoint, {
+        Accept: 'application/json',
+      })
+      if (raw.trim().startsWith('<')) throw new Error('Reddit 返回了网页而不是 JSON')
+      const json = JSON.parse(raw) as {
+        data?: { children?: Array<{ data?: { title?: string; score?: number; permalink?: string; url?: string } }> }
       }
-    }),
-  )
+      const children = json?.data?.children || []
+      const items = top(
+        children.map((c) => {
+          const d = c.data || {}
+          return {
+            title: d.title,
+            heat: typeof d.score === 'number' ? `${d.score} 分` : null,
+            url: d.permalink ? `https://www.reddit.com${d.permalink}` : d.url,
+          }
+        }),
+      )
+      if (items.length) return items
+      throw new Error('空榜')
+    } catch (e) {
+      lastErr = e instanceof Error ? e : new Error(String(e))
+    }
+  }
+  throw lastErr || new Error('Reddit 拉取失败')
 }
 
 async function fetchV2ex(): Promise<HotItem[]> {

@@ -1,16 +1,7 @@
 import { NextResponse } from 'next/server'
+import { clip, hasCjk, resolveIntroZh } from '@/lib/hot/intro-zh'
 
 export const dynamic = 'force-dynamic'
-
-function hasCjk(text: string): boolean {
-  return /[\u3400-\u9fff]/.test(text)
-}
-
-function clip(text: string, n = 80): string {
-  const t = text.trim().replace(/\s+/g, ' ')
-  if (t.length <= n) return t
-  return `${t.slice(0, n - 1)}…`
-}
 
 export async function GET(req: Request) {
   const repo = new URL(req.url).searchParams.get('repo')?.trim() || ''
@@ -34,7 +25,16 @@ export async function GET(req: Request) {
     })
     if (!res.ok) {
       return NextResponse.json(
-        { ok: false, error: `GitHub ${res.status}`, full_name: repo, html_url: `https://github.com/${repo}` },
+        {
+          ok: false,
+          error: `GitHub ${res.status}`,
+          full_name: repo,
+          html_url: `https://github.com/${repo}`,
+          summary: '暂无仓库描述',
+          summaryKind: 'empty',
+          summaryZh: null,
+          summaryZhSource: 'none',
+        },
         { status: 200 },
       )
     }
@@ -54,12 +54,17 @@ export async function GET(req: Request) {
       summary = '暂无仓库描述'
       summaryKind = 'empty'
     } else if (hasCjk(raw)) {
-      summary = clip(raw)
+      summary = clip(raw, 80)
       summaryKind = 'zh'
     } else {
-      summary = clip(raw)
+      summary = clip(raw, 80)
       summaryKind = 'en'
     }
+    const { summaryZh, summaryZhSource } = await resolveIntroZh({
+      source: 'github',
+      cacheId: repo,
+      text: raw || repo,
+    })
     return NextResponse.json({
       ok: true,
       full_name: data.full_name || repo,
@@ -67,6 +72,8 @@ export async function GET(req: Request) {
       homepage: data.homepage || null,
       summary,
       summaryKind,
+      summaryZh,
+      summaryZhSource,
       language: data.language || null,
       stars: typeof data.stargazers_count === 'number' ? data.stargazers_count : null,
       topics: Array.isArray(data.topics) ? data.topics.slice(0, 12) : [],
@@ -74,7 +81,16 @@ export async function GET(req: Request) {
   } catch (err) {
     const message = err instanceof Error ? err.message : '拉取失败'
     return NextResponse.json(
-      { ok: false, error: message, full_name: repo, html_url: `https://github.com/${repo}` },
+      {
+        ok: false,
+        error: message,
+        full_name: repo,
+        html_url: `https://github.com/${repo}`,
+        summary: '暂无仓库描述',
+        summaryKind: 'empty',
+        summaryZh: null,
+        summaryZhSource: 'none',
+      },
       { status: 200 },
     )
   }
