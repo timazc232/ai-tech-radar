@@ -3,6 +3,8 @@ import path from 'node:path'
 import { SOURCES, fetchSource, type HotItem, type HotKind } from './sources'
 import { scheduleIntroPrefetch } from './prefetch-intro'
 
+// Even forced refreshes reuse a source fetched within this window (many users entering at once).
+const MIN_REFETCH_GAP = 3 * 60 * 1000
 const FILE = path.join(process.cwd(), 'data', 'hot', 'cache.json')
 
 export type HotSnap = {
@@ -67,8 +69,11 @@ async function load(force: boolean): Promise<CacheFile> {
       const prev = cache[meta.id]
       // No timed refresh: page render reuses cache; only manual / on-enter refresh (force) refetches.
       const cached = prev && prev.lastOkAt && prev.items?.length
-      if (cached && !force) {
-        next[meta.id] = { ...emptySnap(meta), ...prev, name: meta.name, kind: meta.kind, ok: true, error: null }
+      const recent = cached && prev.fetchedAt && now - prev.fetchedAt < MIN_REFETCH_GAP
+      if (cached && (!force || recent)) {
+        next[meta.id] = force
+          ? { ...emptySnap(meta), ...prev, name: meta.name, kind: meta.kind }
+          : { ...emptySnap(meta), ...prev, name: meta.name, kind: meta.kind, ok: true, error: null }
         return
       }
       didFetch = true
