@@ -3,7 +3,6 @@ import path from 'node:path'
 import { SOURCES, fetchSource, type HotItem, type HotKind } from './sources'
 import { scheduleIntroPrefetch } from './prefetch-intro'
 
-const TTL = 30 * 60 * 1000
 const FILE = path.join(process.cwd(), 'data', 'hot', 'cache.json')
 
 export type HotSnap = {
@@ -66,8 +65,9 @@ async function load(force: boolean): Promise<CacheFile> {
   await Promise.all(
     SOURCES.map(async (meta) => {
       const prev = cache[meta.id]
-      const fresh = prev && prev.lastOkAt && now - prev.lastOkAt < TTL && prev.items?.length
-      if (fresh && !force) {
+      // No timed refresh: page render reuses cache; only manual / on-enter refresh (force) refetches.
+      const cached = prev && prev.lastOkAt && prev.items?.length
+      if (cached && !force) {
         next[meta.id] = { ...emptySnap(meta), ...prev, name: meta.name, kind: meta.kind, ok: true, error: null }
         return
       }

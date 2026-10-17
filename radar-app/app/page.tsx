@@ -101,7 +101,7 @@ export default async function HotHomePage({
             Hot10
           </Link>
           <div className="hot-meta">
-            <span className="hot-updated">{updated ? `更新于 ${updated}` : '正在更新'} · 每 30 分钟</span>
+            <span className="hot-updated">{updated ? `更新于 ${updated}` : '正在更新'}</span>
             <HotRefresh />
             <Link href="/about">关于</Link>
             <Link href="/intel" className="hot-secondary">
